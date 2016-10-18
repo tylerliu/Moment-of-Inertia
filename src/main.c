@@ -97,13 +97,29 @@ void fputu(uint32_t a){
     fputc(a & 255, out);
 }
 
+int get_type(uint32_t num, int index){
+    switch(instrs[num].tpar[index]){
+        case '@':
+            return 0;
+        case 'R':
+            return 1;
+        case '#':
+            return 2;
+        case '*':
+            return 3;
+        default:
+            printf("Warning: incorrect argument type at instruction %d, argument %d", num, index + 1);
+            return -1;
+    }
+}
+
 void put_instr (uint32_t num){
-    fputc(((instrs[num].instr_num & 15) << 4) + ((instrs[num].tpar[0] == '#'? 2: (instrs[num].tpar[0] == 'R' ? 1 : 0)) << 2)
-          +((instrs[num].tpar[1] == '#'? 2: (instrs[num].tpar[1] == 'R' ? 1 : 0))), out);
-    fputc(((instrs[num].tpar[2] == '#'? 2: (instrs[num].tpar[2] == 'R' ? 1 : 0)) << 6) +
-                  (((instrs[num].tpar[0] == 'R'? instrs[num].par[0]:0) & 3) << 4) +
-                  (((instrs[num].tpar[1] == 'R'? instrs[num].par[1]:0) & 3) << 2) +
-                  (((instrs[num].tpar[2] == 'R'? instrs[num].par[2]:0) & 3)), out);
+    fputc(((instrs[num].instr_num & 15) << 4) + (get_type(num, 0) << 2)
+          +get_type(num, 1), out);
+    fputc((get_type(num, 2) << 6) +
+                  (((get_type(num, 0) == 1 || get_type(num, 0) == 3 ? instrs[num].par[0]:0) & 3) << 4) +
+                  (((get_type(num, 1) == 1 || get_type(num, 1) == 3 ? instrs[num].par[1]:0) & 3) << 2) +
+                  (((get_type(num, 2) == 1 || get_type(num, 2) == 3 ? instrs[num].par[2]:0) & 3)), out);
     fputc((instrs[num].tpar[0] == '@'? instrs[num].par[0]:0) >> 8, out);
     fputc((instrs[num].tpar[0] == '@'? instrs[num].par[0]:0), out);
     fputc((instrs[num].tpar[1] == '@'? instrs[num].par[1]:0) >> 8, out);
