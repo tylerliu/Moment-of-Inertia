@@ -159,12 +159,10 @@ int decode_line(){
     for (int i = 0;buff[i]; i++){//capitalize
         buff[i] = (char) toupper(buff[i]);
     }
-    if (buff[0] >= '0' && buff[0] <= '9') {//goto link
+    if (buff[0] >= '0' && buff[0] <= '9') {//goto label
         name =(uint32_t) atoi(buff);
-        //printf("name: %u\n", name);
-        // not used before
         new_link(name, bytes_written);//place now
-        printf("%d %d\n", name, bytes_written);
+        //printf("%d %d\n", name, bytes_written);
         return 1;
     }
 
