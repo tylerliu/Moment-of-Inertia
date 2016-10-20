@@ -23,16 +23,16 @@
 #define INERTIA_RETURN 0xE //return
 #define INERTIA_CALL 0xF // call function
 
-typedef struct instr_set{
+typedef struct {
     uint32_t instr_num;
     char tpar[3];
     uint32_t par[3];
 }instr_set;
 
-typedef struct go_links{
-    uint32_t instr_num;//which instruction ask for it
-    uint32_t par;//which instr par
-}go_links;
+typedef struct {
+    int used;//1 if used
+    uint32_t loc;//location
+}go_link;
 
 FILE *in;
 FILE *out;
@@ -44,8 +44,7 @@ uint32_t used_instrs;
 instr_set *instrs;
 
 uint32_t len_links = 1024;
-uint32_t used_links;
-go_links *links;
+go_link *links;
 
 void new_instr(uint32_t instr_num, char tpar[3], uint32_t par[3]){
     if (len_instrs == used_instrs){
@@ -64,31 +63,38 @@ void new_instr(uint32_t instr_num, char tpar[3], uint32_t par[3]){
     instrs[used_instrs].par[0] = par[0];
     instrs[used_instrs].par[1] = par[1];
     instrs[used_instrs].par[2] = par[2];
-    bytes_written += (2 + (tpar[0] == '#') + (tpar[1] == '#') + (tpar[2] == '#'));
+    bytes_written += (2 + (tpar[0] == '#' || tpar[0] == 'P') + (tpar[1] == '#'|| tpar[1] == 'P') + (tpar[2] == '#'|| tpar[2] == 'P'));
     used_instrs ++;
 }
 
-void new_link(uint32_t instr_num, uint32_t par){
-    if (len_links == used_links){
-        len_links <<= 1;
-        links = (go_links *)realloc(links, len_links * sizeof(go_links));
+void new_link(uint32_t name, uint32_t loc){
+    if (name >= len_links){
+        len_links = name + 10;
+        links = (go_link *)realloc(links, len_links * sizeof(go_link));
         if (!links){
             printf("Failed to allocate\n");
             exit(1);
         }
-        links[used_links].instr_num = instr_num;
-        links[used_links].par = par;
-        used_links ++;
     }
 
-    links[used_links].instr_num = instr_num;
-    links[used_links].par = par;
-    used_links++;
+    links[name].used = 1;
+    links[name].loc = loc;
 }
 
-void make_link_before(uint32_t name){
-    instrs[links[name - 1].instr_num].par[links[name - 1].par - 1] = bytes_written;
-}
+void make_links(){
+    for (int i = 0; i < used_instrs; i++){
+        for (int j = 0; j < 3; j ++){
+            if (instrs[i].tpar[j] == 'P'){
+                if (!links[instrs[i].par[j]].used) {
+                    printf("goto label %d cannot be located", instrs[i].par[j]);
+                    break;
+                }
+                instrs[i].par[j] = links[instrs[i].par[j]].loc;
+                instrs[i].tpar[j] = '#';
+            }
+        }
+    }
+};
 
 void fputu(uint32_t a){
     fputc((a >> 24), out);
@@ -134,28 +140,14 @@ void put_instr (uint32_t num){
 
 }
 
-void decode_add(char *tpar, uint32_t *par, uint32_t n){
+void decode_add(char *tpar, uint32_t *par){
     char c;
     uint32_t t;
     if (fscanf(in, " %c%u", &c,&t) == EOF) return;
     //printf("READADD: %c %u\n", c,t);
-    c = toupper(c);
-    if (c == 'P'){
-        if (t > ((int32_t)used_links)) {//not used before
-            new_link(used_instrs, n);
-            *par = 0;
-            *tpar = '#';
-        }
-        else{//used before
-            *par = links[t - 1].instr_num;
-            if (links[t - 1].par != 0) printf("Warning: goto link incorrect\n");
-            *tpar = '#';
-        }
-    }
-    else {
-        *tpar = c;
-        *par = t;
-    }
+    c = (char) toupper(c);
+    *tpar = c;
+    *par = t;
 }
 
 int decode_line(){
@@ -165,17 +157,14 @@ int decode_line(){
     //printf("READ: %s\n", buff);
 
     for (int i = 0;buff[i]; i++){//capitalize
-        buff[i] = toupper(buff[i]);
+        buff[i] = (char) toupper(buff[i]);
     }
     if (buff[0] >= '0' && buff[0] <= '9') {//goto link
-        name = atoi(buff);
+        name =(uint32_t) atoi(buff);
         //printf("name: %u\n", name);
-        if (name > ((int32_t)used_links)) {//not used before
-            new_link(bytes_written, 0);//place now
-        }
-        else {
-            make_link_before(name);
-        }
+        // not used before
+        new_link(name, bytes_written);//place now
+        printf("%d %d\n", name, bytes_written);
         return 1;
     }
 
@@ -200,26 +189,26 @@ int decode_line(){
     char tpar[3] = {'@', '@', '@'};
     uint32_t par[3] = {0, 0, 0};
 
-    int times;
     switch (name){
         case 0 ... 5: // three par
         case 7:
-            decode_add(&tpar[0], &par[0], 1);
-            decode_add(&tpar[1], &par[1], 2);
-            decode_add(&tpar[2], &par[2], 3);
+            decode_add(&tpar[0], &par[0]);
+            decode_add(&tpar[1], &par[1]);
+            decode_add(&tpar[2], &par[2]);
             break;
         case 6: //two par
         case 11:
         case 13:
-            decode_add(&tpar[0], &par[0], 1);
-            decode_add(&tpar[1], &par[1], 2);
+            decode_add(&tpar[0], &par[0]);
+            decode_add(&tpar[1], &par[1]);
             break;
         case 8 ... 10://one par
         case 12:
         case 15:
-            decode_add(&tpar[0], &par[0], 1);
+            decode_add(&tpar[0], &par[0]);
             break;
         //no par, do nothing
+        default:break;
     }
 
     new_instr(name, tpar, par);
@@ -230,7 +219,7 @@ int decode_line(){
 int main(int argc, char *argv[]) {
 
     instrs = (instr_set *)malloc(len_instrs * sizeof(instr_set));
-    links = (go_links *)malloc(len_links * sizeof(go_links));
+    links = (go_link *)malloc(len_links * sizeof(go_link));
     if ((!instrs) || (!links)){
         printf("Failed to allocate\n");
         return 1;
@@ -253,6 +242,7 @@ int main(int argc, char *argv[]) {
     while (decode_line() != EOF){};
 
     fputu(bytes_written);
+    make_links();
     for (uint32_t i = 0; i < used_instrs; i ++){
         put_instr(i);
     }
