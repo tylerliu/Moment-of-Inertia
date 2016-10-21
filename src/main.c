@@ -140,6 +140,16 @@ void put_instr (uint32_t num){
 
 }
 
+void decode_add(char *tpar, uint32_t *par){
+    char c;
+    uint32_t t;
+    if (fscanf(in, " %c%u", &c,&t) == EOF) return;
+    //printf("READADD: %c %u\n", c,t);
+    c = (char) toupper(c);
+    *tpar = c;
+    *par = t;
+}
+
 int decode_line(){
     char buff[15];
     uint32_t name = 0;
