@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (strstr(argv[1], ".gnfc") == NULL) printf("Incorrect file suffix. \n");
+    //if (strstr(argv[1], ".gnfc") == NULL) printf("Incorrect file suffix. \n");
 
     in = fopen(argv[1], "r");
     out = fopen(argv[2], "wb");
