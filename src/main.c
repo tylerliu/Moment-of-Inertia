@@ -34,6 +34,18 @@ typedef struct {
     uint32_t loc;//location
 }go_link;
 
+typedef struct{
+    int type; //0 as if, 1 as while
+    uint32_t instr_num;
+    int par; //for while's second link, and if link
+    uint32_t loc; //fpr while's first link
+}loop_cond_record;
+
+typedef struct{
+    uint32_t loop_num;
+    uint32_t instr_num;
+}loop_break_record;
+
 FILE *in;
 FILE *out;
 
@@ -45,6 +57,16 @@ instr_set *instrs;
 
 uint32_t len_links = 1024;
 go_link *links;
+
+uint32_t len_recs = 8;
+uint32_t recs_count;
+loop_cond_record * records;
+
+uint32_t len_breaks = 8;
+uint32_t breaks_count;
+loop_break_record * break_recs;
+
+uint32_t
 
 void new_instr(uint32_t instr_num, char tpar[3], uint32_t par[3]){
     if (len_instrs == used_instrs){
@@ -81,6 +103,77 @@ void new_link(uint32_t name, uint32_t loc){
     links[name].loc = loc;
 }
 
+void new_rec(int type){
+    if (recs_count == len_recs){
+        len_recs <<=1;
+        records = (loop_cond_record *)realloc(records, len_recs * sizeof(loop_cond_record));
+        if (!records){
+            printf("Failed to allocate\n");
+            exit(1);
+        }
+    }
+    records[recs_count].type = type;
+    recs_count ++;
+}
+
+void new_break(uint32_t loop_num, uint32_t instr_num){
+    if (breaks_count == len_breaks){
+        len_breaks <<=1;
+        break_recs = (loop_break_record *)realloc(break_recs, len_breaks * sizeof(loop_break_record));
+        if (!records){
+            printf("Failed to allocate\n");
+            exit(1);
+        }
+    }
+
+    break_recs[breaks_count].loop_num = loop_num;
+    break_recs[breaks_count].instr_num = instr_num;
+}
+
+void flush_rec(){
+    recs_count --;
+    if (records[recs_count].type == 0){//if
+        instrs[records[recs_count].instr_num].par[records[recs_count].par] = bytes_written;
+    }
+    if (records[recs_count].type == 1){//while
+        char par1[3] = {'#', '@', '@'};
+        uint32_t par2[3] = {records[recs_count].loc, 0, 0};
+        new_instr(INERTIA_GOTO, par1, par2);
+        instrs[records[recs_count].instr_num].par[records[recs_count].par] = bytes_written;
+
+        //break release
+        while(break_recs[breaks_count - 1].loop_num == recs_count){
+            instrs[break_recs[breaks_count - 1].instr_num].par[0] = bytes_written;//make break
+            breaks_count --;
+        }
+    }
+}
+
+void loop_continue(){
+
+    //find last loop
+    uint32_t temp = recs_count - 1;
+    while(records[temp].type != 1){
+        temp --;
+    }
+    char par1[3] = {'#', '@', '@'};
+    uint32_t par2[3] = {records[temp].loc, 0, 0};
+    new_instr(INERTIA_GOTO, par1, par2);
+
+}
+
+void loop_break(){
+    //find last loop
+    uint32_t temp = recs_count - 1;
+    while(records[temp].type != 1){
+        temp --;
+    }
+    char par1[3] = {'#', '@', '@'};
+    uint32_t par2[3] = {0, 0, 0};
+    new_instr(INERTIA_GOTO, par1, par2);
+    new_break(temp, used_instrs - 1);
+}
+
 void make_links(){
     for (int i = 0; i < used_instrs; i++){
         for (int j = 0; j < 3; j ++){
@@ -114,7 +207,7 @@ int get_type(uint32_t num, int index){
         case '*':
             return 3;
         default:
-            printf("Warning: incorrect argument type at instruction %d, argument %d", num, index + 1);
+            printf("Warning: incorrect argument type at instruction %d, argument %d", num + 1, index + 1);
             return -1;
     }
 }
@@ -229,7 +322,9 @@ int main(int argc, char *argv[]) {
 
     instrs = (instr_set *)malloc(len_instrs * sizeof(instr_set));
     links = (go_link *)malloc(len_links * sizeof(go_link));
-    if ((!instrs) || (!links)){
+    records = (loop_cond_record *)malloc(len_recs * sizeof(loop_cond_record));
+    break_recs = (loop_break_record *)malloc(len_breaks * sizeof(loop_break_record));
+    if ((!instrs) || (!links) || (!records) || (!break_recs)){
         printf("Failed to allocate\n");
         return 1;
     }
@@ -260,5 +355,7 @@ int main(int argc, char *argv[]) {
     fclose(out);
     free(instrs);
     free(links);
+    free(records);
+    free(break_recs);
     return 0;
 }
