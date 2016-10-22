@@ -66,8 +66,6 @@ uint32_t len_breaks = 8;
 uint32_t breaks_count;
 loop_break_record * break_recs;
 
-uint32_t
-
 void new_instr(uint32_t instr_num, char tpar[3], uint32_t par[3]){
     if (len_instrs == used_instrs){
         len_instrs <<= 1;
