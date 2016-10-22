@@ -270,6 +270,39 @@ int decode_line(){
         return 1;
     }
 
+    //cond/loop statements
+    if (!strcmp(buff, "WHILE") || !strcmp(buff, "COND") || !strcmp(buff, "DO") || !strcmp(buff, "END")){
+        if (!strcmp(buff, "WHILE")) {
+            new_rec(1);
+            records[recs_count - 1].loc = bytes_written;
+        }
+
+        if (!strcmp(buff, "COND")){
+            new_rec(0);
+            char tpar[3] = {'@', '#', '@'};
+            uint32_t par[3] = {0, 0, 0};
+            decode_add(&tpar[0], &par[0]); //get first parameter
+            new_instr(INERTIA_IF, tpar, par);
+            records[recs_count - 1].instr_num = used_instrs - 1;
+            records[recs_count - 1].par = 1;
+        }
+
+        if (!strcmp(buff, "DO")){
+            char tpar[3] = {'@', '#', '@'};
+            uint32_t par[3] = {0, 0, 0};
+            decode_add(&tpar[0], &par[0]);
+            new_instr(INERTIA_IF, tpar, par);
+            records[recs_count - 1].instr_num = used_instrs - 1;
+            records[recs_count - 1].par = 1;
+        }
+
+        if (!strcmp(buff, "END")){
+            flush_rec();
+        }
+
+        return 1;
+    }
+
     //name used as instr
     if (!strcmp(buff, "ADD")) name = INERTIA_ADD;
     if (!strcmp(buff, "DIV")) name = INERTIA_DIV;
