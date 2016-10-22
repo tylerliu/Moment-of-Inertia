@@ -151,10 +151,10 @@ void loop_continue(){
 
     //find last loop
     uint32_t temp = recs_count - 1;
-    while(temp >= 0 || records[temp].type != 1){
+    while(temp > 0 || records[temp].type != 1){
         temp --;
     }
-    if (temp < 0){
+    if (records[temp].type != 1){
         printf("continue statement incorrect at instruction %d\n", used_instrs);
     }
     char par1[3] = {'#', '@', '@'};
@@ -166,10 +166,10 @@ void loop_continue(){
 void loop_break(){
     //find last loop
     uint32_t temp = recs_count - 1;
-    while(temp >= 0 || records[temp].type != 1){
+    while(temp > 0 || records[temp].type != 1){
         temp --;
     }
-    if (temp < 0){
+    if (records[temp].type != 1){
         printf("break statement incorrect at instruction %d\n", used_instrs);
     }
     char par1[3] = {'#', '@', '@'};
