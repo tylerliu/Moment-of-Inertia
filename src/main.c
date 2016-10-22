@@ -156,6 +156,17 @@ int decode_line(){
     if (fscanf(in, "%s", buff) == EOF) return EOF;
     //printf("READ: %s\n", buff);
 
+    //delete comment
+    if (strstr(buff, "//") != NULL) {
+        buff[strstr(buff, "//") - buff] = '\0';
+        int c = '0';
+        while (c != '\n' && c >= 0) {
+            c = fgetc(in);
+        } //skip a line
+        printf("skip line\n");
+        return 1;
+    }
+
     for (int i = 0;buff[i]; i++){//capitalize
         buff[i] = (char) toupper(buff[i]);
     }
