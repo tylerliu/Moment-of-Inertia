@@ -151,8 +151,11 @@ void loop_continue(){
 
     //find last loop
     uint32_t temp = recs_count - 1;
-    while(records[temp].type != 1){
+    while(temp >= 0 || records[temp].type != 1){
         temp --;
+    }
+    if (temp < 0){
+        printf("continue statement incorrect at instruction %d\n", used_instrs);
     }
     char par1[3] = {'#', '@', '@'};
     uint32_t par2[3] = {records[temp].loc, 0, 0};
@@ -163,8 +166,11 @@ void loop_continue(){
 void loop_break(){
     //find last loop
     uint32_t temp = recs_count - 1;
-    while(records[temp].type != 1){
+    while(temp >= 0 || records[temp].type != 1){
         temp --;
+    }
+    if (temp < 0){
+        printf("break statement incorrect at instruction %d\n", used_instrs);
     }
     char par1[3] = {'#', '@', '@'};
     uint32_t par2[3] = {0, 0, 0};
@@ -205,7 +211,7 @@ int get_type(uint32_t num, int index){
         case '*':
             return 3;
         default:
-            printf("Warning: incorrect argument type at instruction %d, argument %d", num + 1, index + 1);
+            printf("Warning: incorrect argument type at instruction %d, argument %d\n", num + 1, index + 1);
             return -1;
     }
 }
@@ -269,7 +275,7 @@ int decode_line(){
     }
 
     //cond/loop statements
-    if (!strcmp(buff, "WHILE") || !strcmp(buff, "COND") || !strcmp(buff, "DO") || !strcmp(buff, "END")){
+    if (!strcmp(buff, "WHILE") || !strcmp(buff, "COND") || !strcmp(buff, "DO") || !strcmp(buff, "END")|| !strcmp(buff, "BREAK")|| !strcmp(buff, "CONTINUE")){
         if (!strcmp(buff, "WHILE")) {
             new_rec(1);
             records[recs_count - 1].loc = bytes_written;
@@ -296,6 +302,14 @@ int decode_line(){
 
         if (!strcmp(buff, "END")){
             flush_rec();
+        }
+
+        if (!strcmp(buff, "BREAK")){
+            loop_break();
+        }
+
+        if (!strcmp(buff, "CONTINUE")){
+            loop_continue();
         }
 
         return 1;
