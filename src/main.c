@@ -140,7 +140,7 @@ void flush_rec(){
         instrs[records[recs_count].instr_num].par[records[recs_count].par] = bytes_written;
 
         //break release
-        while(break_recs[breaks_count - 1].loop_num == recs_count){
+        while(breaks_count > 0 && break_recs[breaks_count - 1].loop_num == recs_count){
             instrs[break_recs[breaks_count - 1].instr_num].par[0] = bytes_written;//make break
             breaks_count --;
         }
