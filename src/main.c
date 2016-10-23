@@ -126,6 +126,7 @@ void new_break(uint32_t loop_num, uint32_t instr_num){
 
     break_recs[breaks_count].loop_num = loop_num;
     break_recs[breaks_count].instr_num = instr_num;
+    breaks_count++;
 }
 
 void flush_rec(){
