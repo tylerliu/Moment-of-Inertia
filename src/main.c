@@ -1,3 +1,10 @@
+//
+//
+//
+//
+//
+//Uses little Endian for instr.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,6 +52,13 @@ typedef struct{
     uint32_t loop_num;
     uint32_t instr_num;
 }loop_break_record;
+
+typedef struct{
+    char byte1;
+    char byte2;
+    char byte3;
+    char byte4;
+}r_set_write_t;
 
 FILE *in;
 FILE *out;
@@ -218,22 +232,23 @@ int get_type(uint32_t num, int index){
 }
 
 void put_instr (uint32_t num){
-    fputc(((instrs[num].instr_num & 15) << 4) + (get_type(num, 0) << 2)
-          +get_type(num, 1), out);
-    fputc((get_type(num, 2) << 6) +
-                  (((get_type(num, 0) == 1 || get_type(num, 0) == 3 ? instrs[num].par[0]:0) & 3) << 4) +
-                  (((get_type(num, 1) == 1 || get_type(num, 1) == 3 ? instrs[num].par[1]:0) & 3) << 2) +
-                  (((get_type(num, 2) == 1 || get_type(num, 2) == 3 ? instrs[num].par[2]:0) & 3)), out);
-    fputc((instrs[num].tpar[0] == '@'? instrs[num].par[0]:0) >> 8, out);
-    fputc((instrs[num].tpar[0] == '@'? instrs[num].par[0]:0), out);
-    fputc((instrs[num].tpar[1] == '@'? instrs[num].par[1]:0) >> 8, out);
-    fputc((instrs[num].tpar[1] == '@'? instrs[num].par[1]:0), out);
-    fputc((instrs[num].tpar[2] == '@'? instrs[num].par[2]:0) >> 8, out);
-    fputc((instrs[num].tpar[2] == '@'? instrs[num].par[2]:0), out);
-    if (instrs[num].tpar[0] == '#')fputu(instrs[num].par[0]);
-    if (instrs[num].tpar[1] == '#')fputu(instrs[num].par[1]);
-    if (instrs[num].tpar[2] == '#')fputu(instrs[num].par[2]);
-    
+    uint32_t s1,s2;
+    s1 = (((instrs[num].instr_num & 15) << 4) + (get_type(num, 0) << 2)
+                      +get_type(num, 1)) << 24;
+    s1 += ((get_type(num, 2) << 6) +
+                      (((get_type(num, 0) == 1 || get_type(num, 0) == 3 ? instrs[num].par[0]:0) & 3) << 4) +
+                      (((get_type(num, 1) == 1 || get_type(num, 1) == 3 ? instrs[num].par[1]:0) & 3) << 2) +
+                      (((get_type(num, 2) == 1 || get_type(num, 2) == 3 ? instrs[num].par[2]:0) & 3))) << 16;
+    s1 += (instrs[num].tpar[0] == '@'? instrs[num].par[0]:0);
+    s2 += (instrs[num].tpar[1] == '@'? instrs[num].par[1]:0) << 16;
+    s2 += (instrs[num].tpar[2] == '@'? instrs[num].par[2]:0);
+
+    fwrite(&s1, 4,1,out);
+    fwrite(&s2, 4,1,out);
+    if (instrs[num].tpar[0] == '#')fwrite(&instrs[num].par[0],4,1,out);
+    if (instrs[num].tpar[1] == '#')fwrite(&instrs[num].par[1],4,1,out);
+    if (instrs[num].tpar[2] == '#')fwrite(&instrs[num].par[2],4,1,out);
+
     //printf("%d, %d %c%d %c%d %c%d\n", num, instrs[num].instr_num, instrs[num].tpar[0], instrs[num].par[0], instrs[num].tpar[1], instrs[num].par[1], instrs[num].tpar[2], instrs[num].par[2]);
 
 }
