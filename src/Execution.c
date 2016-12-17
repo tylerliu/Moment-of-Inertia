@@ -8,6 +8,7 @@
 //  execution function
 
 #include "Execution.h"
+#include "Instr_set.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -274,6 +275,7 @@ uint32_t remu(char *param){
 //load upper immediate, type U, load imm to dest.
 uint32_t lui(char *param){
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LUI;
     parse_U(&instr, param);
     return *(uint32_t *)&instr;
@@ -282,6 +284,7 @@ uint32_t lui(char *param){
 //add upper immediate to pc, type U, add imm to pc, store in dest.
 uint32_t auipc(char *param){
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = AUIPC;
     parse_U(&instr, param);
     return *(uint32_t *)&instr;
@@ -290,6 +293,7 @@ uint32_t auipc(char *param){
 //Unconditional jumps, type UJ, add immediate to pc.if dest = 0, plain jump. store pc+4 to dest after jump.
 uint32_t jal(char *param){
     Instr_format_UJ instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = JAL;
     parse_UJ(&instr, param);
     return *(uint32_t *)&instr;
@@ -298,6 +302,7 @@ uint32_t jal(char *param){
 //jump and link register, type I, store pc+4 to dest after jump.
 uint32_t jalr(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = JALR;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
@@ -307,6 +312,7 @@ uint32_t jalr(char *param){
 //BRANCH
 uint32_t beq(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BEQ;
     parse_SB(&instr, param);
@@ -315,6 +321,7 @@ uint32_t beq(char *param){
 
 uint32_t bne(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BNE;
     parse_SB(&instr, param);
@@ -323,6 +330,7 @@ uint32_t bne(char *param){
 
 uint32_t blt(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BLT;
     parse_SB(&instr, param);
@@ -331,6 +339,7 @@ uint32_t blt(char *param){
 
 uint32_t bltu(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BLTU;
     parse_SB(&instr, param);
@@ -339,6 +348,7 @@ uint32_t bltu(char *param){
 
 uint32_t bge(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BGE;
     parse_SB(&instr, param);
@@ -347,6 +357,7 @@ uint32_t bge(char *param){
 
 uint32_t bgeu(char *param){
     Instr_format_SB instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = BRANCH;
     instr.funct3 = BGEU;
     parse_SB(&instr, param);
@@ -356,6 +367,7 @@ uint32_t bgeu(char *param){
 //load from int_memory, type I, The effective byte = s1 + IMM.
 uint32_t lw(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD;
     instr.funct3 = LW;
     parse_I(&instr, param);
@@ -364,6 +376,7 @@ uint32_t lw(char *param){
 
 uint32_t lh(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD;
     instr.funct3 = LH;
     parse_I(&instr, param);
@@ -372,6 +385,7 @@ uint32_t lh(char *param){
 
 uint32_t lhu(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD;
     instr.funct3 = LHU;
     parse_I(&instr, param);
@@ -380,6 +394,7 @@ uint32_t lhu(char *param){
 
 uint32_t lb(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD;
     instr.funct3 = LB;
     parse_I(&instr, param);
@@ -388,6 +403,7 @@ uint32_t lb(char *param){
 
 uint32_t lbu(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD;
     instr.funct3 = LBU;
     parse_I(&instr, param);
@@ -397,6 +413,7 @@ uint32_t lbu(char *param){
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t sw(char *param){
     Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = STORE;
     instr.funct3 = SW;
     parse_S(&instr, param);
@@ -405,6 +422,7 @@ uint32_t sw(char *param){
 
 uint32_t sh(char *param){
     Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = STORE;
     instr.funct3 = SH;
     parse_S(&instr, param);
@@ -413,6 +431,7 @@ uint32_t sh(char *param){
 
 uint32_t sb(char *param){
     Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = STORE;
     instr.funct3 = SB;
     parse_S(&instr, param);
@@ -424,6 +443,7 @@ uint32_t sb(char *param){
 //load from memory, type I, The effective byte = s1 + IMM.
 uint32_t flw(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD_FP;
     instr.funct3 = FLT;
     parse_I(&instr, param);
@@ -432,6 +452,7 @@ uint32_t flw(char *param){
 
 uint32_t fld(char *param){
     Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = LOAD_FP;
     instr.funct3 = DLE;
     parse_I(&instr, param);
@@ -441,6 +462,7 @@ uint32_t fld(char *param){
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t fsw(char *param){
     Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = STORE_FP;
     instr.funct3 = FLT;
     parse_S(&instr, param);
@@ -449,6 +471,7 @@ uint32_t fsw(char *param){
 
 uint32_t fsd(char *param){
     Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = STORE_FP;
     instr.funct3 = DLE;
     parse_S(&instr, param);
@@ -458,6 +481,7 @@ uint32_t fsd(char *param){
 //FP_OP
 uint32_t fadd(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FADD;
     parse_R4OP(&instr, param);
@@ -466,6 +490,7 @@ uint32_t fadd(char *param){
 
 uint32_t fsub(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FSUB;
     parse_R4OP(&instr, param);
@@ -474,6 +499,7 @@ uint32_t fsub(char *param){
 
 uint32_t fmul(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FMUL;
     parse_R4OP(&instr, param);
@@ -482,6 +508,7 @@ uint32_t fmul(char *param){
 
 uint32_t fdiv(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FDIV;
     parse_R4OP(&instr, param);
@@ -490,6 +517,7 @@ uint32_t fdiv(char *param){
 
 uint32_t fsqrt(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FSQRT;
     strcat(param, ",0");
@@ -499,6 +527,7 @@ uint32_t fsqrt(char *param){
 
 uint32_t fcvt_d_w(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCVT_fmt_int;
     strcat(param, ",0");
@@ -508,6 +537,7 @@ uint32_t fcvt_d_w(char *param){
 
 uint32_t fcvt_d_wu(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCVT_fmt_int;
     strcat(param, ",1");
@@ -517,6 +547,7 @@ uint32_t fcvt_d_wu(char *param){
 
 uint32_t fcvt_w_d(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCVT_int_fmt;
     strcat(param, ",0");
@@ -526,6 +557,7 @@ uint32_t fcvt_w_d(char *param){
 
 uint32_t fcvt_wu_d(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCVT_int_fmt;
     strcat(param, ",1");
@@ -535,6 +567,7 @@ uint32_t fcvt_wu_d(char *param){
 
 uint32_t f_eq(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCMP;
     strcat(param, ",0");
@@ -545,6 +578,7 @@ uint32_t f_eq(char *param){
 
 uint32_t f_lt(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCMP;
     strcat(param, ",0");
@@ -555,6 +589,7 @@ uint32_t f_lt(char *param){
 
 uint32_t f_le(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = OP_FP;
     instr.rs3 = FCMP;
     strcat(param, ",0");
@@ -567,6 +602,7 @@ uint32_t f_le(char *param){
 //rs1 * rs2 + rs3, type R4
 uint32_t fmadd(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FMADD;
     parse_R4(&instr, param);
     return *(uint32_t *)&instr;
@@ -574,6 +610,7 @@ uint32_t fmadd(char *param){
 //rs1 * rs2 - rs3, type R4
 uint32_t fmsub(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FMSUB;
     parse_R4(&instr, param);
     return *(uint32_t *)&instr;
@@ -582,6 +619,7 @@ uint32_t fmsub(char *param){
 //-(rs1 * rs2 + rs3), type R4
 uint32_t fnmadd(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FNMADD;
     parse_R4(&instr, param);
     return *(uint32_t *)&instr;
@@ -590,6 +628,7 @@ uint32_t fnmadd(char *param){
 //-(rs1 * rs2 - rs3), type R4
 uint32_t fnmsub(char *param){
     Instr_format_R4 instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FNMSUB;
     parse_R4(&instr, param);
     return *(uint32_t *)&instr;
@@ -597,12 +636,15 @@ uint32_t fnmsub(char *param){
 
 uint32_t scan(char *format){
     //TODO if length overflow
-    uint32_t rd;
-    sscanf(strrchr(format, ',') + 1, "%u", &rd);
+    uint8_t rd;
+    sscanf(strrchr(format, ',') + 1, "%hhu", &rd);
+    //printf("%u\n", rd);
     *strrchr(format, ',') = '\0';
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     uint32_t imm = 0;
     instr.opcode = IO;
+    instr.rd = rd;
     uint32_t ptr = 1;
     if (format[0] == '%' & format[1] != '%'){
         if (strspn(format + ptr, "-+ 0#") != 0){
@@ -716,25 +758,100 @@ uint32_t scan(char *format){
         }
     }
     else{
-        //TODO catch overlong string
-        if (strstr(format, "%%") != NULL) {
-            memmove(strstr(format, "%%")+2, strstr(format, "%%")+1, 3);
-            if (strstr(format+1, "%%") != NULL)format[2] = '\0';
+        char temp[3];
+        temp[0] = temp[1] = temp[2] = '\0';
+        int i = 0;
+        if (format[i] != '%' && format[i] != '\\'){
+            temp[0] = format[i];
+            i++;
         }
-        imm = (uint32_t)((unsigned char)format[1] << 10) + ((unsigned char)format[0] << 2) + 0b10;
+        else{
+            if(format[i] == '%'){
+                temp[0] = '%';
+            }
+            else{
+                switch (format[i+1]){
+                    case 'n':
+                        temp[0] = '\n';
+                        break;
+                    case '\\':
+                        temp[0] = '\\';
+                        break;
+                    case 'a':
+                        temp[0] = '\a';
+                        break;
+                    case 'b':
+                        temp[0] = '\b';
+                        break;
+                    case 't':
+                        temp[0] = '\t';
+                        break;
+                    case 'r':
+                        temp[0] = '\r';
+                        break;
+                    case 'f':
+                        temp[0] = '\f';
+                        break;
+                    default:
+                        break;
+                }
+            }
+            i += 2;
+        }
+
+        if (format[i] != '%' && format[i] != '\\'){
+            temp[1] = format[i];
+        }
+        else{
+            if(format[i] == '%'){
+                temp[1] = '%';
+            }
+            else{
+                switch (format[i+1]){
+                    case 'n':
+                        temp[1] = '\n';
+                        break;
+                    case '\\':
+                        temp[1] = '\\';
+                        break;
+                    case 'a':
+                        temp[1] = '\a';
+                        break;
+                    case 'b':
+                        temp[1] = '\b';
+                        break;
+                    case 't':
+                        temp[1] = '\t';
+                        break;
+                    case 'r':
+                        temp[1] = '\r';
+                        break;
+                    case 'f':
+                        temp[1] = '\f';
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        imm = (uint32_t)((unsigned char)temp[1] << 10) + ((unsigned char)temp[0] << 2) + 0b10;
     }
-    fill_imm_U(&instr, imm);
+    instr.imm12_31 = imm;
     return *(uint32_t *)&instr;
 }
 
 uint32_t print(char *format){
     //TODO if length overflow
-    uint32_t rd;
-    sscanf(strrchr(format, ',') + 1, "%u", &rd);
-    *strrchr(format, ',') = '\0';
+    uint8_t rd = 0;
+    if (strrchr(format, ',') != NULL) sscanf(strrchr(format, ',') + 1, "%hhu", &rd);
+    //printf("%u\n", rd);
+    if (strrchr(format, ',') != NULL) *strrchr(format, ',') = '\0';
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     uint32_t imm = 0;
     instr.opcode = IO;
+    instr.rd = rd;
     uint32_t ptr = 1;
     if (format[0] == '%' & format[1] != '%'){
         if (strspn(format + ptr, "-+ 0#") != 0){
@@ -848,20 +965,93 @@ uint32_t print(char *format){
         }
     }
     else{
-        //TODO catch overlong string
-        if (strstr(format, "%%") != NULL) {
-            memmove(strstr(format, "%%")+2, strstr(format, "%%")+1, 3);
-            if (strstr(format+1, "%%") != NULL)format[2] = '\0';
+        char temp[3];
+        temp[0] = temp[1] = temp[2] = '\0';
+        int i = 0;
+        if (format[i] != '%' && format[i] != '\\'){
+            temp[0] = format[i];
+            i++;
         }
-        imm = (uint32_t)((unsigned char)format[1] << 10) + ((unsigned char)format[0] << 2) + 0b10;
+        else{
+            if(format[i] == '%'){
+                temp[0] = '%';
+            }
+            else{
+                switch (format[i+1]){
+                    case 'n':
+                        temp[0] = '\n';
+                        break;
+                    case '\\':
+                        temp[0] = '\\';
+                        break;
+                    case 'a':
+                        temp[0] = '\a';
+                        break;
+                    case 'b':
+                        temp[0] = '\b';
+                        break;
+                    case 't':
+                        temp[0] = '\t';
+                        break;
+                    case 'r':
+                        temp[0] = '\r';
+                        break;
+                    case 'f':
+                        temp[0] = '\f';
+                        break;
+                    default:
+                        break;
+                }
+            }
+            i += 2;
+        }
+
+        if (format[i] != '%' && format[i] != '\\'){
+            temp[1] = format[i];
+        }
+        else{
+            if(format[i] == '%'){
+                temp[1] = '%';
+            }
+            else{
+                switch (format[i+1]){
+                    case 'n':
+                        temp[1] = '\n';
+                        break;
+                    case '\\':
+                        temp[1] = '\\';
+                        break;
+                    case 'a':
+                        temp[1] = '\a';
+                        break;
+                    case 'b':
+                        temp[1] = '\b';
+                        break;
+                    case 't':
+                        temp[1] = '\t';
+                        break;
+                    case 'r':
+                        temp[1] = '\r';
+                        break;
+                    case 'f':
+                        temp[1] = '\f';
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        imm = (uint32_t)((unsigned char)temp[1] << 10) + ((unsigned char)temp[0] << 2) + 0b10;
     }
     imm++;
-    fill_imm_U(&instr, imm);
+    instr.imm12_31 = imm;
     return *(uint32_t *)&instr;
 }
 
 uint32_t call(char *param){
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FUNC;
     instr.imm12_31 = 0;
     return *(uint32_t *)&instr;
@@ -869,6 +1059,7 @@ uint32_t call(char *param){
 
 uint32_t ret(char *param){
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FUNC;
     instr.imm12_31 = 1;
     return *(uint32_t *)&instr;
@@ -876,10 +1067,11 @@ uint32_t ret(char *param){
 
 uint32_t reallocation(char *param){
     Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
     instr.opcode = FUNC;
     instr.imm12_31 = 2;
     uint32_t i;
-    sscanf(param, "%u", 1);
+    sscanf(param, "%u", &i);
     instr.rd = i;
     return *(uint32_t *)&instr;
 }

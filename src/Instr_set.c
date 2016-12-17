@@ -47,69 +47,69 @@ void fill_imm_UJ(Instr_format_UJ *instr, int32_t imm){
 }
 
 void parse_R(Instr_format_R *instr, char *param){
-    uint32_t rd, rs1, rs2;
-    sscanf(param, "%u,%u,%u", &rd, &rs1, &rs2);
-    instr->rd = (uint8_t)rd;
-    instr->rs1 = (uint8_t)rs1;
-    instr->rs2 = (uint8_t)rs2;
+    uint8_t rd, rs1, rs2;
+    sscanf(param, "%hhu,%hhu,%hhu", &rd, &rs1, &rs2);
+    instr->rd = rd;
+    instr->rs1 = rs1;
+    instr->rs2 = rs2;
 }
 
 void parse_R4(Instr_format_R4 *instr, char *param){
-    uint32_t rd, rs1, rs2, rs3;
-    sscanf(param, "%u,%u,%u,%u", &rd, &rs1, &rs2, &rs3);
-    instr->rd = (uint8_t)rd;
-    instr->rs1 = (uint8_t)rs1;
-    instr->rs2 = (uint8_t)rs2;
-    instr->rs3 = (uint8_t)rs3;
+    uint8_t rd, rs1, rs2, rs3;
+    sscanf(param, "%hhu,%hhu,%hhu,%hhu", &rd, &rs1, &rs2, &rs3);
+    instr->rd = rd;
+    instr->rs1 = rs1;
+    instr->rs2 = rs2;
+    instr->rs3 = rs3;
 }
 
 void parse_R4OP(Instr_format_R4 *instr, char *param){
-    uint32_t rd, rs1, rs2;
-    sscanf(param, "%u,%u,%u", &rd, &rs1, &rs2);
-    instr->rd = (uint8_t)rd;
-    instr->rs1 = (uint8_t)rs1;
-    instr->rs2 = (uint8_t)rs2;
+    uint8_t rd, rs1, rs2;
+    sscanf(param, "%hhu,%hhu,%hhu", &rd, &rs1, &rs2);
+    instr->rd = rd;
+    instr->rs1 = rs1;
+    instr->rs2 = rs2;
 }
 
 void parse_I(Instr_format_I *instr, char *param){
-    uint32_t rd, rs1;
+    uint8_t rd, rs1;
     int32_t imm;
-    sscanf(param, "%u,%u,%d", &rd, &rs1, &imm);
-    instr->rd = (uint8_t)rd;
-    instr->rs1 = (uint8_t)rs1;
+    sscanf(param, "%hhu,%hhu,%d", &rd, &rs1, &imm);
+    instr->rd = rd;
+    instr->rs1 = rs1;
     fill_imm_I(instr, imm);
 }
 
 void parse_S(Instr_format_S *instr, char *param){
-    uint32_t rs1, rs2;
+    uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%u,%u,%d", &rs1, &rs2, &imm);
-    instr->rs1 = (uint8_t)rs1;
-    instr->rs2 = (uint8_t)rs2;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr->rs1 = rs1;
+    instr->rs2 = rs2;
     fill_imm_S(instr, imm);
 }
 
 void parse_SB(Instr_format_SB *instr, char *param){
-    uint32_t rs1, rs2;
+    uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%u,%u,%d", &rs1, &rs2, &imm);
-    instr->rs1 = (uint8_t)rs1;
-    instr->rs2 = (uint8_t)rs2;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr->rs1 = rs1;
+    instr->rs2 = rs2;
     fill_imm_SB(instr, imm);
 }
 
 void parse_U(Instr_format_U *instr, char *param){
-    uint32_t rd;
+    uint8_t rd;
     int32_t imm;
-    sscanf(param, "%u,%d", &rd, &imm);
-    instr->rd = (uint8_t)rd;
+    sscanf(param, "%hhu,%d", &rd, &imm);
+    instr->rd = rd;
     fill_imm_U(instr, imm);
 }
 
 void parse_UJ(Instr_format_UJ *instr, char *param){
-    uint32_t rd;
+    uint8_t rd;
     int32_t imm;
-    sscanf(param, "%u,%d", &rd, &imm);
-    instr->rd = (uint8_t)rd;
+    sscanf(param, "%hhu,%d", &rd, &imm);
+    instr->rd = rd;
     fill_imm_UJ(instr, imm);
 }

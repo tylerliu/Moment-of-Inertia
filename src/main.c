@@ -20,7 +20,7 @@ uint32_t bytes_written;
 
 //dictionary
 const int length_op = 70;
-char opname[70][7] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "SLLI", "SRLI", "SRAI", "ADD", "SUB", "SLT",
+char opname[70][9] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "SLLI", "SRLI", "SRAI", "ADD", "SUB", "SLT",
                       "SLTU", "AND", "OR", "XOR", "SLL", "SRL", "SRA", "MUL", "MULH", "MULHU", "MULHSU", "DIV", "DIVU",
                       "REM", "REMU", "LUI", "AUIPC", "JAL", "JALR", "BEQ", "BNE", "BLT", "BLTU", "BGE", "BGEU", "LW",
                       "LH", "LHU", "LB", "LBU", "SW", "SH", "SB", "FLW", "FLD", "FSW", "FSD", "FADD", "FSUB", "FMUL",
@@ -46,6 +46,7 @@ int decode_line(){
     }
 
     for (int i = 0;buff[i]; i++){//capitalize
+        if (buff[i] == ' ')break;
         buff[i] = (char) toupper(buff[i]);
     }
 
