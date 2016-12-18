@@ -760,6 +760,9 @@ uint32_t scan(char *format){
     else{
         char temp[3];
         temp[0] = temp[1] = temp[2] = '\0';
+        for (int i = 0; i < 3; i++){
+            if (format[i] == '\n' || format[i] == ' ') format[i] = 0;
+        }
         int i = 0;
         if (format[i] != '%' && format[i] != '\\'){
             temp[0] = format[i];
@@ -967,6 +970,9 @@ uint32_t print(char *format){
     else{
         char temp[3];
         temp[0] = temp[1] = temp[2] = '\0';
+        for (int i = 0; i < 3; i++){
+            if (format[i] == '\n' || format[i] == ' ') format[i] = 0;
+        }
         int i = 0;
         if (format[i] != '%' && format[i] != '\\'){
             temp[0] = format[i];
