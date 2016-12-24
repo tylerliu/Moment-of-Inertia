@@ -119,5 +119,6 @@ uint32_t print(char *format);
 uint32_t call(char *param);
 uint32_t ret(char *param);
 uint32_t reallocation(char *param);
+uint32_t Exit(char *param);
 
 #endif /* Execution.h */

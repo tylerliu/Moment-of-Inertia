@@ -19,19 +19,19 @@ FILE *out;
 uint32_t bytes_written;
 
 //dictionary
-const int length_op = 70;
-char opname[70][9] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "SLLI", "SRLI", "SRAI", "ADD", "SUB", "SLT",
+const int length_op = 71;
+char opname[71][9] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "SLLI", "SRLI", "SRAI", "ADD", "SUB", "SLT",
                       "SLTU", "AND", "OR", "XOR", "SLL", "SRL", "SRA", "MUL", "MULH", "MULHU", "MULHSU", "DIV", "DIVU",
                       "REM", "REMU", "LUI", "AUIPC", "JAL", "JALR", "BEQ", "BNE", "BLT", "BLTU", "BGE", "BGEU", "LW",
                       "LH", "LHU", "LB", "LBU", "SW", "SH", "SB", "FLW", "FLD", "FSW", "FSD", "FADD", "FSUB", "FMUL",
                       "FDIV", "FSQRT", "FCVT_D_W", "FCVT_D_WU", "FCVT_W_D", "FCVT_WU_D", "F_EQ", "F_LT", "F_LE",
-                      "FMADD", "FMSUB", "FNMADD", "FNMSUB", "SCAN", "PRINT", "CALL", "RET", "REALLOC"};
-uint32_t (*opdec[70])(char *) = {&addi, &slti, &sltui, &andi, &ori, &xori, &slli, &srli, &srai, &add, &sub, &slt, &sltu,
+                      "FMADD", "FMSUB", "FNMADD", "FNMSUB", "SCAN", "PRINT", "CALL", "RET", "REALLOC","EXIT"};
+uint32_t (*opdec[71])(char *) = {&addi, &slti, &sltui, &andi, &ori, &xori, &slli, &srli, &srai, &add, &sub, &slt, &sltu,
                                  &and, &or, &xor, &sll, &srl, &sra, &mul, &mulh, &mulhu, &mulhsu, &division, &divu, &rem,
                                  &remu, &lui, &auipc, &jal, &jalr, &beq, &bne, &blt, &bltu, &bge, &bgeu, &lw, &lh,
                                  &lhu, &lb, &lbu, &sw, &sh, &sb, &flw, &fld, &fsw, &fsd, &fadd, &fsub, &fmul, &fdiv,
                                  &fsqrt, &fcvt_d_w, &fcvt_d_wu, &fcvt_w_d, &fcvt_wu_d, &f_eq, &f_lt, &f_le, &fmadd,
-                                 &fmsub, &fnmadd, &fnmsub, &scan, &print, &call, &ret, &reallocation};
+                                 &fmsub, &fnmadd, &fnmsub, &scan, &print, &call, &ret, &reallocation, &Exit};
 
 int decode_line(){
     char buff[21];

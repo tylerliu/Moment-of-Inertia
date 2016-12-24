@@ -1005,6 +1005,8 @@ uint32_t print(char *format){
                     case 'f':
                         temp[0] = '\f';
                         break;
+                    case ' ':
+                        temp[0] = ' ';
                     default:
                         break;
                 }
@@ -1042,6 +1044,8 @@ uint32_t print(char *format){
                     case 'f':
                         temp[1] = '\f';
                         break;
+                    case ' ':
+                        temp[1] = ' ';
                     default:
                         break;
                 }
@@ -1079,5 +1083,13 @@ uint32_t reallocation(char *param){
     uint32_t i;
     sscanf(param, "%u", &i);
     instr.rd = i;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t Exit(char *param){
+    Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = FUNC;
+    instr.imm12_31 = 3;
     return *(uint32_t *)&instr;
 }
