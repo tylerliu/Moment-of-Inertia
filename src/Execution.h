@@ -13,9 +13,6 @@
 #include "Instr_set.h"
 //for float NaN/Infinity/rounding mode
 #include <math.h>
-#include <fenv.h>
-
-//RV32I/RV32M
 
 //Integer Register-Immediate Instructions, type I
 //OPIMM
@@ -28,6 +25,11 @@ uint32_t xori(char *param);
 uint32_t slli(char *param);
 uint32_t srli(char *param);
 uint32_t srai(char *param);
+uint32_t muli(char *param);
+uint32_t divi(char *param);
+uint32_t divui(char *param);
+uint32_t remi(char *param);
+uint32_t remui(char *param);
 
 //Integer Register-Register Operations, type R
 //OP
@@ -42,16 +44,12 @@ uint32_t sll(char *param);
 uint32_t srl(char *param);
 uint32_t sra(char *param);
 uint32_t mul(char *param);
-uint32_t mulh(char *param);
-uint32_t mulhu(char *param);
-uint32_t mulhsu(char *param);
 uint32_t division(char *param);
 uint32_t divu(char *param);
 uint32_t rem(char *param);
 uint32_t remu(char *param);
 
 uint32_t lui(char *param) ;   //load upper immediate, type U, load imm to dest.
-uint32_t auipc(char *param);  //add upper immediate to pc, type U, add imm to pc, store in dest.
 uint32_t jal(char *param);    //Unconditional jumps, type UJ, add immediate to pc.if dest = 0, plain jump. store pc+4 to rd after jump.
 uint32_t jalr(char *param);   //jump and link register, type I, store pc+4 to rd after jump
 
@@ -103,20 +101,12 @@ uint32_t f_eq(char *param);
 uint32_t f_lt(char *param);
 uint32_t f_le(char *param);
 
-//rs1 * rs2 + rs3, type R4
-uint32_t fmadd(char *param);
-//rs1 * rs2 - rs3, type R4
-uint32_t fmsub(char *param);
-//-(rs1 * rs2 + rs3), type R4
-uint32_t fnmadd(char *param);
-//-(rs1 * rs2 - rs3), type R4
-uint32_t fnmsub(char *param);
-
 //IO
 uint32_t scan(char *format);
 uint32_t print(char *format);
 
 uint32_t call(char *param);
+uint32_t callr(char *param);
 uint32_t ret(char *param);
 uint32_t reallocation(char *param);
 uint32_t Exit(char *param);
