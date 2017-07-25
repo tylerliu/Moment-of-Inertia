@@ -8,6 +8,7 @@
 //  execution function
 
 #include "Execution.h"
+#include "Instr_set.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -255,6 +256,15 @@ uint32_t lui(char *param){
     Instr_format_U instr;
     *(uint32_t *)&instr = 0;
     instr.opcode = LUI;
+    parse_U(&instr, param);
+    return *(uint32_t *)&instr;
+}
+
+//add upper immediate to pc, type U, load imm + pc to dest.
+uint32_t auipc(char *param){
+    Instr_format_U instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = AUIPC;
     parse_U(&instr, param);
     return *(uint32_t *)&instr;
 }
@@ -531,6 +541,368 @@ uint32_t f_le(char *param){
     return *(uint32_t *)&instr;
 }
 
+uint32_t fmv(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = FMV;
+    strcat(param, ",0");
+    parse_R(&instr, param);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t fneg(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = FNEG;
+    strcat(param, ",0");
+    parse_R(&instr, param);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t Fabs(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = FABS;
+    strcat(param, ",0");
+    parse_R(&instr, param);
+    return *(uint32_t *)&instr;
+}
+
+//Pseudo-instructions
+extern void write_instr(uint32_t instr);
+
+uint32_t nop(char *param){
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = ADDI;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t li(char *param){
+    uint8_t rd;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rd, &imm);
+    if (imm >> 13 == 0 || imm >> 13 == -1){
+        //1 instruction
+        Instr_format_I instr;
+        *(uint32_t *)&instr = 0;
+        instr.opcode = ADDI;
+        instr.rd = rd;
+        instr.rs1 = 0;
+        fill_imm_I(&instr, imm);
+        return *(uint32_t *)&instr;
+    } else {
+        //instr 1
+        char buf[32];
+        sprintf(buf, "%hhu,%d", rd, imm);
+        write_instr(lui(buf));
+
+        //instr 2
+        Instr_format_I instr;
+        *(uint32_t *) &instr = 0;
+        instr.opcode = ADDI;
+        instr.rd = rd;
+        instr.rs1 = rd;
+        fill_imm_I(&instr, imm & 0x1FFF);
+        return *(uint32_t *)&instr;
+    }
+}
+
+uint32_t mv(char *param){
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = ADDI;
+    uint8_t rd, rs1;
+    sscanf(param, "%hhu,%hhu", &rd, &rs1);
+    instr.rd = rd;
+    instr.rs1 = rs1;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t neg(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = SUB;
+    uint8_t rd, rs;
+    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    instr.rd = rd;
+    instr.rs1 = 0;
+    instr.rs2 = rs;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t not(char *param){
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = XORI;
+    uint8_t rd, rs1;
+    sscanf(param, "%hhu,%hhu", &rd, &rs1);
+    instr.rd = rd;
+    instr.rs1 = rs1;
+    fill_imm_I(&instr, -1);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t seqz(char *param){
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = SLTUI;
+    uint8_t rd, rs;
+    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    instr.rd = rd;
+    instr.rs1 = rs;
+    fill_imm_I(&instr, 1);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t snez(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = SLTU;
+    uint8_t rd, rs;
+    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    instr.rd = rd;
+    instr.rs1 = 0;
+    instr.rs2 = rs;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t sltz(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = SLT;
+    uint8_t rd, rs;
+    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    instr.rd = rd;
+    instr.rs1 = rs;
+    instr.rs2 = 0;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t sgtz(char *param){
+    Instr_format_R instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = SLT;
+    uint8_t rd, rs;
+    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    instr.rd = rd;
+    instr.rs1 = 0;
+    instr.rs2 = rs;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t beqz(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BEQ;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = rs;
+    instr.rs2 = 0;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+uint32_t bnez(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BNE;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = rs;
+    instr.rs2 = 0;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t blez(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BGE;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = 0;
+    instr.rs2 = rs;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t bgez(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BGE;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = rs;
+    instr.rs2 = 0;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t bltz(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BLT;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = rs;
+    instr.rs2 = 0;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t bgtz(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BLT;
+    uint8_t rs;
+    int32_t imm;
+    sscanf(param, "%hhu,%d", &rs, &imm);
+    instr.rs1 = 0;
+    instr.rs2 = rs;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t bgt(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BLT;
+    uint8_t rs1, rs2;
+    int32_t imm;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr.rs1 = rs2;
+    instr.rs2 = rs1;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+uint32_t ble(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BGE;
+    uint8_t rs1, rs2;
+    int32_t imm;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr.rs1 = rs2;
+    instr.rs2 = rs1;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+uint32_t bgtu(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BLTU;
+    uint8_t rs1, rs2;
+    int32_t imm;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr.rs1 = rs2;
+    instr.rs2 = rs1;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+uint32_t bleu(char *param){
+    Instr_format_S instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = BGEU;
+    uint8_t rs1, rs2;
+    int32_t imm;
+    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    instr.rs1 = rs2;
+    instr.rs2 = rs1;
+    fill_imm_S(&instr, imm);
+    return *(uint32_t *)&instr;
+}
+
+uint32_t jump(char *param){
+    int32_t imm;
+    sscanf(param, "%d", &imm);
+    if (imm >> 18 == 0 || imm >> 18 == -1){//normal
+        Instr_format_U instr;
+        *(uint32_t *)&instr = 0;
+        instr.opcode = JAL;
+        instr.rd = 0;
+        fill_imm_UJ(&instr, imm);
+        return *(uint32_t *)&instr;
+    } else {
+        char buf[32];
+        sprintf(buf, "4,%d", imm);
+        write_instr(auipc(buf));
+
+        Instr_format_I instr;
+        *(uint32_t *) &instr = 0;
+        instr.opcode = JALR;
+        instr.rd = 0;
+        instr.rs1 = 4;
+        fill_imm_I(&instr, imm & 0x1FFF);
+        return *(uint32_t *)&instr;
+    }
+}
+
+uint32_t call(char *param){
+    int32_t imm;
+    sscanf(param, "%d", &imm);
+    if (imm >> 18 == 0 || imm >> 18 == -1){//normal
+        Instr_format_U instr;
+        *(uint32_t *)&instr = 0;
+        instr.opcode = JAL;
+        instr.rd = 0;
+        fill_imm_UJ(&instr, imm);
+        return *(uint32_t *)&instr;
+    } else {
+        char buf[32];
+        sprintf(buf, "4,%d", imm);
+        write_instr(auipc(buf));
+
+        Instr_format_I instr;
+        *(uint32_t *) &instr = 0;
+        instr.opcode = JALR;
+        instr.rd = 1;
+        instr.rs1 = 4;
+        fill_imm_I(&instr, imm & 0x1FFF);
+        return *(uint32_t *)&instr;
+    }
+}
+
+uint32_t jumpr(char *param){
+    uint8_t rs;
+    sscanf(param, "%hhu", &rs);
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = JALR;
+    instr.rd = 0;
+    instr.rs1 = rs;
+    instr.imm = 0;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t callr(char *param){
+    uint8_t rs;
+    sscanf(param, "%hhu", &rs);
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = JALR;
+    instr.rd = 1;
+    instr.rs1 = rs;
+    instr.imm = 0;
+    return *(uint32_t *)&instr;
+}
+
+uint32_t ret(char *param){
+    Instr_format_I instr;
+    *(uint32_t *)&instr = 0;
+    instr.opcode = JALR;
+    instr.rd = 0;
+    instr.rs1 = 1;
+    instr.imm = 0;
+    return *(uint32_t *)&instr;
+}
+
+
+//other
 uint32_t scan(char *format){
     //TODO if length overflow
     uint8_t rd;
@@ -762,29 +1134,6 @@ uint32_t parseIO(char *format){
     return imm;
 }
 
-uint32_t call(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
-    instr.opcode = CALL;
-    parse_UJ(&instr, param);
-    return *(uint32_t *)&instr;
-}
-
-uint32_t callr(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
-    instr.opcode = CALLR;
-    parse_I(&instr, param);
-    return *(uint32_t *)&instr;
-}
-
-uint32_t ret(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
-    instr.opcode = RET;
-    return *(uint32_t *)&instr;
-}
-
 uint32_t reallocation(char *param){
     Instr_format_U instr;
     *(uint32_t *)&instr = 0;
@@ -795,7 +1144,7 @@ uint32_t reallocation(char *param){
     return *(uint32_t *)&instr;
 }
 
-uint32_t Exit(char *param){
+uint32_t Exit(char *param){ //the end of main have to be EXIT!
     Instr_format_U instr;
     *(uint32_t *)&instr = 0;
     instr.opcode = EXIT;
