@@ -15,7 +15,8 @@
  * reg[1] is return address
  * reg[2] is stack base pointer
  * reg[3] is stack top pointer
- * reg[4] is temporary register
+ * reg[4] is global area pointer
+ * reg[5] is temporary register
  */
 
 //opcodes
@@ -182,11 +183,16 @@
  * BGTU //branch if unsigned greater than
  * BLEU //branch if unsigned less than
  *
- * JUMP //unconditional jump
- * CALL //call
+ * PUSHW //push into stack, 4 byte int
+ * POPW  //pop from stack
+ * MKFM  // make a new stack frame, have to be called in the beginning of the function.
+ * POFM  // restore the previous stack frame
+ *
+ * JUMP  //unconditional jump
+ * CALL  //call
  * JUMPR //unconditional jump with register
  * CALLR //call with register
- * RET  //return
+ * RET   //return
  */
 
 //enumerators

@@ -128,6 +128,11 @@ uint32_t ble(char *param);
 uint32_t bgtu(char *param);
 uint32_t bleu(char *param);
 
+uint32_t pushw(char *param);
+uint32_t popw(char *param);
+uint32_t mkfm(char *param);
+uint32_t pofm(char *param);
+
 uint32_t jump(char *param);
 uint32_t call(char *param);
 uint32_t jumpr(char *param);

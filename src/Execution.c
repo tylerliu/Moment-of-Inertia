@@ -581,7 +581,7 @@ uint32_t nop(char *param){
 uint32_t li(char *param){
     uint8_t rd;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rd, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rd, &imm);
     if (imm >> 13 == 0 || imm >> 13 == -1){
         //1 instruction
         Instr_format_I instr;
@@ -594,7 +594,7 @@ uint32_t li(char *param){
     } else {
         //instr 1
         char buf[32];
-        sprintf(buf, "%hhu,%d", rd, imm);
+        sprintf(buf, "%hhu,%i", rd, imm);
         write_instr(lui(buf));
 
         //instr 2
@@ -613,7 +613,7 @@ uint32_t mv(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = ADDI;
     uint8_t rd, rs1;
-    sscanf(param, "%hhu,%hhu", &rd, &rs1);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs1);
     instr.rd = rd;
     instr.rs1 = rs1;
     return *(uint32_t *)&instr;
@@ -624,7 +624,7 @@ uint32_t neg(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = SUB;
     uint8_t rd, rs;
-    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
     instr.rd = rd;
     instr.rs1 = 0;
     instr.rs2 = rs;
@@ -636,7 +636,7 @@ uint32_t not(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = XORI;
     uint8_t rd, rs1;
-    sscanf(param, "%hhu,%hhu", &rd, &rs1);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs1);
     instr.rd = rd;
     instr.rs1 = rs1;
     fill_imm_I(&instr, -1);
@@ -648,7 +648,7 @@ uint32_t seqz(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = SLTUI;
     uint8_t rd, rs;
-    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
     instr.rd = rd;
     instr.rs1 = rs;
     fill_imm_I(&instr, 1);
@@ -660,7 +660,7 @@ uint32_t snez(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = SLTU;
     uint8_t rd, rs;
-    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
     instr.rd = rd;
     instr.rs1 = 0;
     instr.rs2 = rs;
@@ -672,7 +672,7 @@ uint32_t sltz(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = SLT;
     uint8_t rd, rs;
-    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
     instr.rd = rd;
     instr.rs1 = rs;
     instr.rs2 = 0;
@@ -684,7 +684,7 @@ uint32_t sgtz(char *param){
     *(uint32_t *)&instr = 0;
     instr.opcode = SLT;
     uint8_t rd, rs;
-    sscanf(param, "%hhu,%hhu", &rd, &rs);
+    sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
     instr.rd = rd;
     instr.rs1 = 0;
     instr.rs2 = rs;
@@ -697,7 +697,7 @@ uint32_t beqz(char *param){
     instr.opcode = BEQ;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = rs;
     instr.rs2 = 0;
     fill_imm_S(&instr, imm);
@@ -709,7 +709,7 @@ uint32_t bnez(char *param){
     instr.opcode = BNE;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = rs;
     instr.rs2 = 0;
     fill_imm_S(&instr, imm);
@@ -722,7 +722,7 @@ uint32_t blez(char *param){
     instr.opcode = BGE;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = 0;
     instr.rs2 = rs;
     fill_imm_S(&instr, imm);
@@ -735,7 +735,7 @@ uint32_t bgez(char *param){
     instr.opcode = BGE;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = rs;
     instr.rs2 = 0;
     fill_imm_S(&instr, imm);
@@ -748,7 +748,7 @@ uint32_t bltz(char *param){
     instr.opcode = BLT;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = rs;
     instr.rs2 = 0;
     fill_imm_S(&instr, imm);
@@ -761,7 +761,7 @@ uint32_t bgtz(char *param){
     instr.opcode = BLT;
     uint8_t rs;
     int32_t imm;
-    sscanf(param, "%hhu,%d", &rs, &imm);
+    sscanf(param, "%hhu%*[ \n,]%i", &rs, &imm);
     instr.rs1 = 0;
     instr.rs2 = rs;
     fill_imm_S(&instr, imm);
@@ -774,7 +774,7 @@ uint32_t bgt(char *param){
     instr.opcode = BLT;
     uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    sscanf(param, "%hhu%*[ \n,]%hhu%*[ \n,]%i", &rs1, &rs2, &imm);
     instr.rs1 = rs2;
     instr.rs2 = rs1;
     fill_imm_S(&instr, imm);
@@ -786,7 +786,7 @@ uint32_t ble(char *param){
     instr.opcode = BGE;
     uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    sscanf(param, "%hhu%*[ \n,]%hhu%*[ \n,]%i", &rs1, &rs2, &imm);
     instr.rs1 = rs2;
     instr.rs2 = rs1;
     fill_imm_S(&instr, imm);
@@ -798,7 +798,7 @@ uint32_t bgtu(char *param){
     instr.opcode = BLTU;
     uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    sscanf(param, "%hhu%*[ \n,]%hhu%*[ \n,]%i", &rs1, &rs2, &imm);
     instr.rs1 = rs2;
     instr.rs2 = rs1;
     fill_imm_S(&instr, imm);
@@ -810,41 +810,40 @@ uint32_t bleu(char *param){
     instr.opcode = BGEU;
     uint8_t rs1, rs2;
     int32_t imm;
-    sscanf(param, "%hhu,%hhu,%d", &rs1, &rs2, &imm);
+    sscanf(param, "%hhu%*[ \n,]%hhu%*[ \n,]%i", &rs1, &rs2, &imm);
     instr.rs1 = rs2;
     instr.rs2 = rs1;
     fill_imm_S(&instr, imm);
     return *(uint32_t *)&instr;
 }
 
-uint32_t jump(char *param){
-    int32_t imm;
-    sscanf(param, "%d", &imm);
-    if (imm >> 18 == 0 || imm >> 18 == -1){//normal
-        Instr_format_U instr;
-        *(uint32_t *)&instr = 0;
-        instr.opcode = JAL;
-        instr.rd = 0;
-        fill_imm_UJ(&instr, imm);
-        return *(uint32_t *)&instr;
-    } else {
-        char buf[32];
-        sprintf(buf, "4,%d", imm);
-        write_instr(auipc(buf));
-
-        Instr_format_I instr;
-        *(uint32_t *) &instr = 0;
-        instr.opcode = JALR;
-        instr.rd = 0;
-        instr.rs1 = 4;
-        fill_imm_I(&instr, imm & 0x1FFF);
-        return *(uint32_t *)&instr;
-    }
+uint32_t pushw(char *param){
+    write_instr(addi("3,3,-4"));
+    char buf[16];
+    sprintf(buf, "3,%s,0", param);
+    return sw(buf);
 }
 
-uint32_t call(char *param){
+uint32_t popw(char *param){
+    char buf[16];
+    sprintf(buf, "%s,3,0", param);
+    write_instr(lw(buf));
+    return addi("3,3,4");
+}
+
+uint32_t mkfm(char *param){
+    write_instr(pushw("2"));
+    return mv("2,3");
+}
+
+uint32_t pofm(char *param){
+    write_instr(addi("3,2,4"));
+    return lw("2,2,0");
+}
+
+uint32_t jump(char *param){
     int32_t imm;
-    sscanf(param, "%d", &imm);
+    sscanf(param, "%i", &imm);
     if (imm >> 18 == 0 || imm >> 18 == -1){//normal
         Instr_format_U instr;
         *(uint32_t *)&instr = 0;
@@ -854,13 +853,13 @@ uint32_t call(char *param){
         return *(uint32_t *)&instr;
     } else {
         char buf[32];
-        sprintf(buf, "4,%d", imm);
+        sprintf(buf, "4,%i", imm);
         write_instr(auipc(buf));
 
         Instr_format_I instr;
         *(uint32_t *) &instr = 0;
         instr.opcode = JALR;
-        instr.rd = 1;
+        instr.rd = 0;
         instr.rs1 = 4;
         fill_imm_I(&instr, imm & 0x1FFF);
         return *(uint32_t *)&instr;
@@ -879,6 +878,31 @@ uint32_t jumpr(char *param){
     return *(uint32_t *)&instr;
 }
 
+uint32_t call(char *param){
+    int32_t imm;
+    sscanf(param, "%i", &imm);
+    if (imm >> 18 == 0 || imm >> 18 == -1){//normal
+        Instr_format_U instr;
+        *(uint32_t *)&instr = 0;
+        instr.opcode = JAL;
+        instr.rd = 1;
+        fill_imm_UJ(&instr, imm);
+        return *(uint32_t *)&instr;
+    } else {
+        char buf[32];
+        sprintf(buf, "4,%i", imm);
+        write_instr(auipc(buf));
+
+        Instr_format_I instr;
+        *(uint32_t *) &instr = 0;
+        instr.opcode = JALR;
+        instr.rd = 1;
+        instr.rs1 = 4;
+        fill_imm_I(&instr, imm & 0x1FFF);
+        return *(uint32_t *)&instr;
+    }
+}
+
 uint32_t callr(char *param){
     uint8_t rs;
     sscanf(param, "%hhu", &rs);
@@ -892,6 +916,7 @@ uint32_t callr(char *param){
 }
 
 uint32_t ret(char *param){
+    write_instr(pofm(NULL));
     Instr_format_I instr;
     *(uint32_t *)&instr = 0;
     instr.opcode = JALR;
@@ -900,7 +925,6 @@ uint32_t ret(char *param){
     instr.imm = 0;
     return *(uint32_t *)&instr;
 }
-
 
 //other
 uint32_t scan(char *format){
