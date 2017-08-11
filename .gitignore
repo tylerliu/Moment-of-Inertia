@@ -54,3 +54,6 @@ dkms.conf
 #inertia special
 *.gnf
 *.gnfa
+prog/
+.idea/
+cmake-build-debug/
