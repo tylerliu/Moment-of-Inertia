@@ -12,11 +12,17 @@
 #include "FileIO.h"
 #include "Text.h"
 #include "FileIO.h"
+#include "Hash.h"
+#include "Data.h"
 
 void parse(){
     //parse
-    while (categorize_parse() == READ_SUCCESS);
+    parse_data();
+    parse_text();
+    write_global();
 
+    fseek(out, 0, SEEK_SET);
+    fwrite(&bytes_written, 4, 1, out);
     //output
 }
 
@@ -24,6 +30,7 @@ int main(int argc, char *argv[]) {
 
     //if (strstr(argv[1], ".gnfc") == NULL) printf("Incorrect file suffix. \n");
 
+    hash_init();
     in = fopen(argv[1], "r");
     out = fopen(argv[2], "wb");
     if ((!in) || (!out)){
@@ -38,9 +45,8 @@ int main(int argc, char *argv[]) {
 
     parse();
 
-    fseek(out, 0, SEEK_SET);
-    fwrite(&bytes_written, 4, 1, out);
     fclose(in);
     fclose(out);
+    hash_delete();
     return 0;
 }

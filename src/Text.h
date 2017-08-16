@@ -11,5 +11,6 @@
 void write_instr(uint32_t instr);
 void start_text();
 int decode_text_line(char *buff);
+void end_text();
 
 #endif /* Text.h */

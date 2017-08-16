@@ -49,25 +49,20 @@ void start_text(){
 }
 
 int decode_text_line(char *buff){
-    char *ptr;
     //printf("READ: %s\n", buff);
 
-    for (int i = 0;buff[i]; i++){//capitalize
-        if (buff[i] == ' ')break;
-        buff[i] = (char) toupper(buff[i]);
-    }
-
     for (int i = 0; i < length_op; i ++){
-        if (!memcmp(buff, opname[i], strlen(opname[i]))){
-            ptr = strchr(buff, ' ');
-            if (ptr != NULL)
-                for (ptr ++; *ptr == ' ' || *ptr == '\t';ptr ++);
-            write_instr((*opdec[i])(ptr));
+        if (startwith_incensitive(buff, opname[i])){
+            write_instr((*opdec[i])(skip_space(buff + strlen(opname[i]))));
             return 1;
         }
 
     }
     fprintf(stderr, "Unrecognizable text: %s\n", buff);
     return 1;
+}
+
+void end_text(){
+
 }
 

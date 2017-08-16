@@ -16,7 +16,14 @@ FILE *out;
 uint32_t bytes_written;
 
 void write_int32(uint32_t int32);
+void write_segment(uint32_t len, void * segment);
+
 char * readline();
-int categorize_parse();
+int parse_data();
+int parse_text();
+
+int startwith(char *source, const char *pattern);
+int startwith_incensitive(char *source, const char *pattern);
+char *skip_space(char *str);
 
 #endif /* FileIO.h */

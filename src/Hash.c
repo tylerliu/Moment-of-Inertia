@@ -16,16 +16,16 @@ typedef struct{
     uint32_t type;
     uint32_t value;
     uint32_t next;
-} map_element;
+} hash_element;
 
 uint32_t arr_len = 64;
 uint32_t used = 1;
-map_element *elements; //nothing should be stored at 0
+hash_element *elements; //nothing should be stored at 0
 
 uint32_t table[TABLE_LENGTH]; //points to 0 if nothing
 
 void hash_init(){
-    elements = (map_element *) malloc(arr_len * sizeof(map_element));
+    elements = (hash_element *) malloc(arr_len * sizeof(hash_element));
 }
 
 uint32_t ELFHash(const char *key){
@@ -42,7 +42,7 @@ uint32_t ELFHash(const char *key){
 void hash_put(const char *name, uint32_t type, uint32_t value){
     if (arr_len == used){
         arr_len <<= 1;
-        elements = (map_element *) realloc(elements, arr_len * sizeof(map_element));
+        elements = (hash_element *) realloc(elements, arr_len * sizeof(hash_element));
     }
     used ++;
 
@@ -58,7 +58,7 @@ void hash_put(const char *name, uint32_t type, uint32_t value){
         loc = table[loc];
         while (elements[loc].next != 0) {
 #ifdef NOT_ALLOW_REPEAT
-            if (!strcmp(elements[loc].name, name) && elements[loc].type == type){
+            if (!strcmp(elements[loc].name, name)){
                 fprintf(stderr, "REPEATED IDENTIFIER: %s\n", name);
                 return;
             }
@@ -66,7 +66,7 @@ void hash_put(const char *name, uint32_t type, uint32_t value){
             loc = elements[loc].next;
         }
 #ifdef NOT_ALLOW_REPEAT
-        if (!strcmp(elements[loc].name, name) && elements[loc].type == type){
+        if (!strcmp(elements[loc].name, name)){
             fprintf(stderr, "REPEATED IDENTIFIER: %s\n", name);
             return;
         }
@@ -75,10 +75,11 @@ void hash_put(const char *name, uint32_t type, uint32_t value){
     }
 }
 
-uint32_t hash_get(const char *name, uint32_t type){
+uint32_t hash_get(const char *name){
     uint32_t loc = table[ELFHash(name)];
     while (loc != 0){
-        if (!strcmp(elements[loc].name, name) && elements[loc].type == type){ //correct
+        if (!strcmp(elements[loc].name, name)){ //correct
+            last_type = elements[loc].type;
             return elements[loc].value;
         }
         loc = elements[loc].next;

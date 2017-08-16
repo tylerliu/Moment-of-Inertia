@@ -5,6 +5,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <stdint.h>
+
 /*
  * Data type:
  * .ascii ascii string
@@ -14,11 +16,25 @@
  * .word 4byte words
  * .float floats
  * .double doubles
- * .space spaces
+ * .space 0-filled spaces
  */
 
+ //identifier must not start with digit, must end with :
+
+#define ASCII 8
+#define ASCIIZ 9
+#define BYTE 10
+#define HALF 11
+#define WORD 12
+#define FLOAT 13
+#define DOUBLE 14
+#define SPACE 15
 
 void start_data();
 void decode_data_line(char *line);
+void end_data();
+uint32_t data_get(char *name);
+void write_global();
+void force_exit();
 
 #endif /* Data.h */

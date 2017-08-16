@@ -5,4 +5,4 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 
 aux_source_directory(src/ SOURCE_FILES)
 
-add_executable(Moment_of_Inertia ${SOURCE_FILES} src/Hash.c src/Hash.h)
+add_executable(Moment_of_Inertia ${SOURCE_FILES} src/Hash.c src/Hash.h src/error.c src/error.h)
