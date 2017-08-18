@@ -22,7 +22,7 @@ void write_int32(uint32_t int32){
 }
 
 void write_segment(uint32_t len, void * segment){
-    fwrite(&segment, 1, len, out);
+    fwrite(segment, 1, len, out);
 }
 
 char *readline(){
@@ -61,7 +61,8 @@ int parse_data(){
     if (!startwith_incensitive(buf, ".data")) {
         fseek(in, 0, SEEK_SET);//reset to head
         do {
-            fgets(buf, 1024, in);
+            if (fgets(buf, 1024, in) == NULL)
+                perror_exit(1, "No data segment\n");
         } while (!startwith_incensitive(skip_space(buf), ".data"));
     }
     start_data();
@@ -69,12 +70,13 @@ int parse_data(){
         decode_data_line(buf);
     }
     end_data();
+    return 1;
 }
 int parse_text(){
     if (!startwith_incensitive(buf, ".text")) {
         fseek(in, 0, SEEK_SET);//reset to head
         do {
-            fgets(buf, 1024, in);
+            if (fgets(buf, 1024, in) == NULL) perror_exit(1, "No text segment\n");
         } while (!startwith_incensitive(skip_space(buf), ".text"));
     }
     start_text();
@@ -82,6 +84,7 @@ int parse_text(){
         decode_text_line(buf);
     }
     end_text();
+    return 1;
 }
 
 int startwith(char *source, const char *pattern){

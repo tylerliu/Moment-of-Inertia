@@ -15,7 +15,7 @@
 #define global_min -8192
 #define global_max 8191
 
-const char type_name[8][10] = {".ascii", ".asciiz", ".byte", ".half", ".word", ".float", ".double", ".space"};
+const char type_name[8][10] = {".asciiz", ".ascii", ".byte", ".half", ".word", ".float", ".double", ".space"};
 const char esc[23] = {"a\ab\bf\fn\nr\rt\tv\v\\\\''\"\"??"};
 
 unsigned int data_read; //whether data region is read
@@ -40,6 +40,7 @@ void start_data(){
 }
 
 void add_to_global(uint32_t len, const void *seg){
+    printf("%02X%02X%02X%02X\n", *(int8_t *)seg, *(int8_t *)(seg + 1), *(int8_t *)(seg + 2), *(int8_t *)(seg + 3));
     if (initd + len > glb_len){
         glb_len *= 2;
         global = realloc(global,glb_len);
@@ -61,7 +62,7 @@ char *read_string(char *line){
 
     char k = 0; //temp
 
-    while (strchr(line, '\\') < strchr(line, '"')){
+    while (strchr(line, '\\') != NULL && strchr(line, '\\') < strchr(line, '"')){
         add_to_global((uint32_t) (strchr(line, '\\') - line), line);
         line = strchr(line, '\\');
 
@@ -80,7 +81,7 @@ char *read_string(char *line){
         //unicode or hex?
         if (line[1] >= '0' && line[1] <= '7' && line[2] >= '0' && line[2] <= '7' && line[3] >= '0' && line[3] <= '7' ){
             //oct
-            k = (char) ((line[1] - '0') << 6 + (line[2] - '0') << 3 + (line[3] - '0'));
+            k = (char) (((line[1] - '0') << 6) + ((line[2] - '0') << 3) + (line[3] - '0'));
             add_to_global(1, &k);
             line += 4;
             break;
@@ -88,7 +89,7 @@ char *read_string(char *line){
 
         if (line[1] == 'x' && isxdigit(line[2]) && isxdigit(line[3])){
             //hex
-            k = (char) ((isdigit(line[2]) ? line[2] - '0' : isupper(line[2]) ? line[2] - 'A' + 10 : line[2] - 'a' + 10) << 4
+            k = (char) (((isdigit(line[2]) ? line[2] - '0' : isupper(line[2]) ? line[2] - 'A' + 10 : line[2] - 'a' + 10) << 4)
                      + (isdigit(line[3]) ? line[3] - '0' : isupper(line[3]) ? line[3] - 'A' + 10 : line[3] - 'a' + 10));
             add_to_global(1, &k);
             line += 4;
@@ -130,12 +131,12 @@ char *read_number(char *line){
                 }
 
                 if (k == 0 && isnumber(line[2]) && isnumber(line[3]) && isnumber(line[4])) {
-                    k = (char) ((line[1] - '0') << 6 + (line[2] - '0') << 3 + (line[3] - '0'));
+                    k = (char) (((line[1] - '0') << 6) + ((line[2] - '0') << 3) + (line[3] - '0'));
                 }
 
                 if (k == 0 && line[1] == 'x' && isxdigit(line[2]) && isxdigit(line[3])){
                     //hex
-                    k = (char) ((isdigit(line[2]) ? line[2] - '0' : isupper(line[2]) ? line[2] - 'A' + 10 : line[2] - 'a' + 10) << 4
+                    k = (char) (((isdigit(line[2]) ? line[2] - '0' : isupper(line[2]) ? line[2] - 'A' + 10 : line[2] - 'a' + 10) << 4)
                          + (isdigit(line[3]) ? line[3] - '0' : isupper(line[3]) ? line[3] - 'A' + 10 : line[3] - 'a' + 10));
                 }
             }
@@ -145,13 +146,13 @@ char *read_number(char *line){
 
     if (cur_type == FLOAT){
         float f;
-        scanf(line, "%f", &f);
+        sscanf(line, "%f", &f);
         add_to_global(4, &f);
     }
 
     if (cur_type == DOUBLE){
         double d;
-        scanf(line, "%f", &d);
+        sscanf(line, "%lf", &d);
         add_to_global(8, &d);
     }
 
@@ -175,6 +176,7 @@ void decode_data_line(char *line){
         for (int i = 0; i < 8; i ++){
             if (startwith_incensitive(line, type_name[i])){
                 cur_type = (uint32_t) (i + 8);
+                line += strlen(type_name[i]);
                 break;
             }
         }
@@ -210,7 +212,7 @@ void decode_data_line(char *line){
     } else {
         //numbers
         while (strlen(line) != 0){
-            char *k = read_string(line);
+            char *k = read_number(line);
             step = 1;
             if (k == NULL) return;
             line = skip_space(strchr(k, ',') + 1);
@@ -220,6 +222,8 @@ void decode_data_line(char *line){
 
 void end_data(){
     if (data_read == 1)data_read = 2;
+    if ((int32_t) (global_min + initd + uninitd) > global_max)
+        perrorf_exit(1, "Too many global variable. \n");
 }
 
 void write_global(){

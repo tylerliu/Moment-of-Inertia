@@ -21,8 +21,9 @@
 
  //identifier must not start with digit, must end with :
 
-#define ASCII 8
-#define ASCIIZ 9
+
+#define ASCIIZ 8
+#define ASCII 9
 #define BYTE 10
 #define HALF 11
 #define WORD 12
