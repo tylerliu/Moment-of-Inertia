@@ -7,10 +7,15 @@
 //
 //  execution function
 
-#include "Execution.h"
+#include "text_instr.h"
 #include "Instr_set.h"
+#include "Data.h"
+#include "error.h"
 #include <stdio.h>
 #include <string.h>
+
+#define NEW_INSTR(format) Instr_format_##format instr;\
+                            *(uint32_t *)&instr = 0\
 
 //parse of IO functions
 uint32_t parseIO(char *param);
@@ -18,112 +23,98 @@ uint32_t parseIO(char *param);
 // Integer Register-Immediate Instructions, type I
 
 uint32_t addi(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = ADDI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t slti(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SLTI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sltui(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SLTUI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t andi(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = ANDI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t ori(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = ORI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t xori(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = XORI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t slli(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SLLI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t srli(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SRLI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t srai(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SRAI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t muli(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = MULI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t divi(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = DIVI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t divui(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = DIVUI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t remi(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = REMI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t remui(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = REMUI;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
@@ -132,120 +123,105 @@ uint32_t remui(char *param){
 //Integer Register-Register Operations, type R
 //OP
 uint32_t add(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = ADD;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sub(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SUB;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t slt(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLT;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sltu(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLTU;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t and(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = AND;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t or(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = OR;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t xor(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = XOR;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sll(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLL;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t srl(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SRL;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sra(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SRA;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t mul(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = MUL;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t division(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = DIV;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t divu(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = DIVU;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t rem(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = REM;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t remu(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = REMU;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
@@ -253,8 +229,7 @@ uint32_t remu(char *param){
 
 //load upper immediate, type U, load imm to dest.
 uint32_t lui(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = LUI;
     parse_U(&instr, param);
     return *(uint32_t *)&instr;
@@ -262,8 +237,7 @@ uint32_t lui(char *param){
 
 //add upper immediate to pc, type U, load imm + pc to dest.
 uint32_t auipc(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = AUIPC;
     parse_U(&instr, param);
     return *(uint32_t *)&instr;
@@ -271,8 +245,7 @@ uint32_t auipc(char *param){
 
 //Unconditional jumps, type U, add immediate to pc.if dest = 0, plain jump. store pc+4 to dest after jump.
 uint32_t jal(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = JAL;
     parse_UJ(&instr, param);
     return *(uint32_t *)&instr;
@@ -280,8 +253,7 @@ uint32_t jal(char *param){
 
 //jump and link register, type I, store pc+4 to dest after jump.
 uint32_t jalr(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = JALR;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
@@ -290,48 +262,42 @@ uint32_t jalr(char *param){
 //branch statements, type S, shift of offest.
 //BRANCH
 uint32_t beq(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BEQ;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t bne(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;   
+    NEW_INSTR(S);   
     instr.opcode = BNE;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t blt(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLT;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t bltu(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLTU;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t bge(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGE;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t bgeu(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGEU;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
@@ -339,40 +305,90 @@ uint32_t bgeu(char *param){
 
 //load from int_memory, type I, The effective byte = s1 + IMM.
 uint32_t lw(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //lw ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return lw(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = LW;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t lh(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //lh ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return lh(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = LH;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t lhu(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //lhu ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return lhu(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = LHU;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t lb(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //lb ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return lb(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = LB;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t lbu(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //lbu ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return lbu(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = LBU;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
@@ -380,24 +396,54 @@ uint32_t lbu(char *param){
 
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t sw(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //store global
+        //sw ?, @global
+        char name[64];
+        uint8_t source;
+        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "4,%hhu,%d", source, offset);
+        return sw(name);
+    }
+    NEW_INSTR(S);
     instr.opcode = SW;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sh(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //store global
+        //sh ?, @global
+        char name[64];
+        uint8_t source;
+        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "4,%hhu,%d", source, offset);
+        return sh(name);
+    }
+    NEW_INSTR(S);
     instr.opcode = SH;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t sb(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //store global
+        //sb ?, @global
+        char name[64];
+        uint8_t source;
+        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "4,%hhu,%d", source, offset);
+        return sb(name);
+    }
+    NEW_INSTR(S);
     instr.opcode = SB;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
@@ -407,16 +453,36 @@ uint32_t sb(char *param){
 
 //load from memory, type I, The effective byte = s1 + IMM.
 uint32_t flw(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //flw ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return flw(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = FLW;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fld(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //load global
+        //fld ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "%hhu,4,%d", dest, offset);
+        return fld(name);
+    }
+    NEW_INSTR(I);
     instr.opcode = FLD;
     parse_I(&instr, param);
     return *(uint32_t *)&instr;
@@ -424,16 +490,36 @@ uint32_t fld(char *param){
 
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t fsw(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //store global
+        //fsw ?, @global
+        char name[64];
+        uint8_t source;
+        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "4,%hhu,%d", source, offset);
+        return fsw(name);
+    }
+    NEW_INSTR(S);
     instr.opcode = FSW;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fsd(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    if (strchr(param, '@') != NULL){
+        //store global
+        //fsd ?, @global
+        char name[64];
+        uint8_t source;
+        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        sprintf(name, "4,%hhu,%d", source, offset);
+        return fsd(name);
+    }
+    NEW_INSTR(S);
     instr.opcode = FSD;
     parse_S(&instr, param);
     return *(uint32_t *)&instr;
@@ -441,40 +527,35 @@ uint32_t fsd(char *param){
 
 //FP_OP
 uint32_t fadd(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FADD;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fsub(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FSUB;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fmul(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FMUL;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fdiv(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FDIV;
     parse_R(&instr, param);
     return *(uint32_t *)&instr;
 }
 
 uint32_t fsqrt(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FSQRT;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -482,8 +563,7 @@ uint32_t fsqrt(char *param){
 }
 
 uint32_t fcvt_d_w(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FCVT_D_W;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -491,8 +571,7 @@ uint32_t fcvt_d_w(char *param){
 }
 
 uint32_t fcvt_d_wu(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FCVT_D_WU;
     strcat(param, ",1");
     parse_R(&instr, param);
@@ -500,8 +579,7 @@ uint32_t fcvt_d_wu(char *param){
 }
 
 uint32_t fcvt_w_d(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FCVT_W_D;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -509,8 +587,7 @@ uint32_t fcvt_w_d(char *param){
 }
 
 uint32_t fcvt_wu_d(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FCVT_WU_D;
     strcat(param, ",1");
     parse_R(&instr, param);
@@ -518,32 +595,28 @@ uint32_t fcvt_wu_d(char *param){
 }
 
 uint32_t f_eq(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     parse_R(&instr, param);
     instr.opcode = F_EQ;
     return *(uint32_t *)&instr;
 }
 
 uint32_t f_lt(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     parse_R(&instr, param);
     instr.opcode = F_LT;
     return *(uint32_t *)&instr;
 }
 
 uint32_t f_le(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     parse_R(&instr, param);
     instr.opcode = F_LE;
     return *(uint32_t *)&instr;
 }
 
 uint32_t fmv(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FMV;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -551,8 +624,7 @@ uint32_t fmv(char *param){
 }
 
 uint32_t fneg(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FNEG;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -560,8 +632,7 @@ uint32_t fneg(char *param){
 }
 
 uint32_t Fabs(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = FABS;
     strcat(param, ",0");
     parse_R(&instr, param);
@@ -572,8 +643,7 @@ uint32_t Fabs(char *param){
 extern void write_instr(uint32_t instr);
 
 uint32_t nop(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = ADDI;
     return *(uint32_t *)&instr;
 }
@@ -609,8 +679,7 @@ uint32_t li(char *param){
 }
 
 uint32_t mv(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = ADDI;
     uint8_t rd, rs1;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs1);
@@ -620,8 +689,7 @@ uint32_t mv(char *param){
 }
 
 uint32_t neg(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SUB;
     uint8_t rd, rs;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
@@ -632,8 +700,7 @@ uint32_t neg(char *param){
 }
 
 uint32_t not(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = XORI;
     uint8_t rd, rs1;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs1);
@@ -644,8 +711,7 @@ uint32_t not(char *param){
 }
 
 uint32_t seqz(char *param){
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = SLTUI;
     uint8_t rd, rs;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
@@ -656,8 +722,7 @@ uint32_t seqz(char *param){
 }
 
 uint32_t snez(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLTU;
     uint8_t rd, rs;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
@@ -668,8 +733,7 @@ uint32_t snez(char *param){
 }
 
 uint32_t sltz(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLT;
     uint8_t rd, rs;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
@@ -680,8 +744,7 @@ uint32_t sltz(char *param){
 }
 
 uint32_t sgtz(char *param){
-    Instr_format_R instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(R);
     instr.opcode = SLT;
     uint8_t rd, rs;
     sscanf(param, "%hhu%*[ \n,]%hhu", &rd, &rs);
@@ -692,8 +755,7 @@ uint32_t sgtz(char *param){
 }
 
 uint32_t beqz(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BEQ;
     uint8_t rs;
     int32_t imm;
@@ -704,8 +766,7 @@ uint32_t beqz(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bnez(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BNE;
     uint8_t rs;
     int32_t imm;
@@ -717,8 +778,7 @@ uint32_t bnez(char *param){
 }
 
 uint32_t blez(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
     int32_t imm;
@@ -730,8 +790,7 @@ uint32_t blez(char *param){
 }
 
 uint32_t bgez(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
     int32_t imm;
@@ -743,8 +802,7 @@ uint32_t bgez(char *param){
 }
 
 uint32_t bltz(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
     int32_t imm;
@@ -756,8 +814,7 @@ uint32_t bltz(char *param){
 }
 
 uint32_t bgtz(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
     int32_t imm;
@@ -769,8 +826,7 @@ uint32_t bgtz(char *param){
 }
 
 uint32_t bgt(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs1, rs2;
     int32_t imm;
@@ -781,8 +837,7 @@ uint32_t bgt(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t ble(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs1, rs2;
     int32_t imm;
@@ -793,8 +848,7 @@ uint32_t ble(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bgtu(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BLTU;
     uint8_t rs1, rs2;
     int32_t imm;
@@ -804,9 +858,9 @@ uint32_t bgtu(char *param){
     fill_imm_S(&instr, imm);
     return *(uint32_t *)&instr;
 }
+
 uint32_t bleu(char *param){
-    Instr_format_S instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(S);
     instr.opcode = BGEU;
     uint8_t rs1, rs2;
     int32_t imm;
@@ -869,8 +923,7 @@ uint32_t jump(char *param){
 uint32_t jumpr(char *param){
     uint8_t rs;
     sscanf(param, "%hhu", &rs);
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = JALR;
     instr.rd = 0;
     instr.rs1 = rs;
@@ -906,8 +959,7 @@ uint32_t call(char *param){
 uint32_t callr(char *param){
     uint8_t rs;
     sscanf(param, "%hhu", &rs);
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = JALR;
     instr.rd = 1;
     instr.rs1 = rs;
@@ -917,8 +969,7 @@ uint32_t callr(char *param){
 
 uint32_t ret(char *param){
     write_instr(pofm(NULL));
-    Instr_format_I instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(I);
     instr.opcode = JALR;
     instr.rd = 0;
     instr.rs1 = 1;
@@ -926,12 +977,23 @@ uint32_t ret(char *param){
     return *(uint32_t *)&instr;
 }
 
+uint32_t la(char *param){
+    //la ?, @global
+    if (strchr(param, '@') == NULL) perrorf_exit(0, "Format error: la %s\n", param);
+    char name[64];
+    uint8_t dest;
+    sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
+    int32_t offset = data_get(name);
+    if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+    sprintf(name, "%hhu,4,%d", dest, offset);
+    return addi(name);
+}
+
 //other
 uint32_t scan(char *format){
     //TODO if length overflow
     uint8_t rd;
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = SCAN;
     instr.imm = parseIO(format);
     if (!(instr.imm & 1)) {
@@ -944,8 +1006,7 @@ uint32_t scan(char *format){
 
 uint32_t print(char *format){
     uint8_t rd;
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = PRINT;
     instr.imm = parseIO(format);
     if (!(instr.imm & 1)) {
@@ -955,6 +1016,7 @@ uint32_t print(char *format){
 
     return *(uint32_t *)&instr;
 }
+
 uint32_t parseIO(char *format){
     //TODO if length overflow
     uint32_t imm = 0;
@@ -1159,8 +1221,7 @@ uint32_t parseIO(char *format){
 }
 
 uint32_t reallocation(char *param){
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = REALLOC;
     uint32_t i;
     sscanf(param, "%u", &i);
@@ -1169,8 +1230,7 @@ uint32_t reallocation(char *param){
 }
 
 uint32_t Exit(char *param){ //the end of main have to be EXIT!
-    Instr_format_U instr;
-    *(uint32_t *)&instr = 0;
+    NEW_INSTR(U);
     instr.opcode = EXIT;
     return *(uint32_t *)&instr;
 }

@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Text.h"
-#include "FileIO.h"
-#include "Execution.h"
+#include "fileIO.h"
+#include "text_instr.h"
 #include "string.h"
 
 bool text_read; //whether text region is read
 
 //dictionary
-const int length_op = 98;
+const int length_op = 99;
 char opname[length_op][10] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "SLLI", "SRLI", "SRAI", "MULI", "DIVI", "DIVUI", "REMI", "REMUI",
                               "ADD", "SUB", "SLT", "SLTU", "AND", "OR", "XOR", "SLL", "SRL", "SRA", "MUL", "DIVISION", "DIVU", "REM",
                               "REMU", "LUI", "AUIPC", "JAL", "JALR", "BEQ", "BNE", "BLT", "BLTU", "BGE", "BGEU", "LW", "LH",
@@ -22,7 +22,7 @@ char opname[length_op][10] = {"ADDI", "SLTI", "SLTUI", "ANDI", "ORI", "XORI", "S
                               "SCAN", "PRINT", "REALLOC", "EXIT",
         /*Pseudo-instructions*/
                               "NOP", "LI", "MV", "NEG", "NOT", "SEQZ", "SNEZ", "SLTZ", "SGTZ", "BEQZ", "BNEZ", "BLEZ", "BGEZ", "BLTZ", "BGTZ",
-                              "BGT", "BLE", "BGTU", "BLEU", "PUSHW", "POPW", "MKFM", "POFM", "JUMP", "CALL", "JUMPR", "CALLR", "RET"};
+                              "BGT", "BLE", "BGTU", "BLEU", "PUSHW", "POPW", "MKFM", "POFM", "JUMP", "CALL", "JUMPR", "CALLR", "RET", "LA"};
 uint32_t (*opdec[length_op])(char *) = {addi, slti, sltui, andi, ori, xori, slli, srli, srai, muli, divi, divui, remi, remui,
                                         add, sub, slt, sltu, and, or, xor, sll, srl, sra, mul, division, divu, rem,
                                         remu, lui, auipc, jal, jalr, beq, bne, blt, bltu, bge, bgeu, lw, lh,
@@ -31,7 +31,7 @@ uint32_t (*opdec[length_op])(char *) = {addi, slti, sltui, andi, ori, xori, slli
                                         scan, print, reallocation, Exit,
         /*Pseudo-instructions*/
                                         nop, li, mv, neg, not, seqz, snez, sltz, sgtz, beqz, bnez, blez, bgez, bltz, bgtz,
-                                        bgt, ble, bgtu, bleu, pushw, popw, mkfm, pofm, jump, call, jumpr, callr, ret};
+                                        bgt, ble, bgtu, bleu, pushw, popw, mkfm, pofm, jump, call, jumpr, callr, ret, la};
 
 
 void write_instr(uint32_t instr){

@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "FileIO.h"
+#include "fileIO.h"
 #include "Text.h"
-#include "FileIO.h"
+#include "fileIO.h"
 #include "Hash.h"
 #include "Data.h"
 

@@ -193,6 +193,8 @@
  * JUMPR //unconditional jump with register
  * CALLR //call with register
  * RET   //return
+ *
+ * LA    //load address
  */
 
 //enumerators

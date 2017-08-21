@@ -3,7 +3,7 @@
 //
 
 #include "Data.h"
-#include "FileIO.h"
+#include "fileIO.h"
 #include "Hash.h"
 #include "error.h"
 #include <stdbool.h>
@@ -12,8 +12,8 @@
 #include <ctype.h>
 #include <string.h>
 
-#define global_min -8192
-#define global_max 8191
+#define GLOBAL_MIN -8192
+#define GLOBAL_MAX 8191
 
 const char type_name[8][10] = {".asciiz", ".ascii", ".byte", ".half", ".word", ".float", ".double", ".space"};
 const char esc[23] = {"a\ab\bf\fn\nr\rt\tv\v\\\\''\"\"??"};
@@ -40,7 +40,7 @@ void start_data(){
 }
 
 void add_to_global(uint32_t len, const void *seg){
-    printf("%02X%02X%02X%02X\n", *(int8_t *)seg, *(int8_t *)(seg + 1), *(int8_t *)(seg + 2), *(int8_t *)(seg + 3));
+    //printf("%02X%02X%02X%02X\n", *(int8_t *)seg, *(int8_t *)(seg + 1), *(int8_t *)(seg + 2), *(int8_t *)(seg + 3));
     if (initd + len > glb_len){
         glb_len *= 2;
         global = realloc(global,glb_len);
@@ -222,7 +222,7 @@ void decode_data_line(char *line){
 
 void end_data(){
     if (data_read == 1)data_read = 2;
-    if ((int32_t) (global_min + initd + uninitd) > global_max)
+    if ((int32_t) (GLOBAL_MIN + initd + uninitd) > GLOBAL_MAX)
         perrorf_exit(1, "Too many global variable. \n");
 }
 
@@ -238,19 +238,19 @@ void write_global(){
 }
 
 
-uint32_t data_get(char *name){
+int32_t data_get(char *name){
     if (data_read != 2) perror_exit(1, "ERROR\n");
     uint32_t loc = hash_get(name);
-    if (last_type == 0 || loc == HASH_NOT_FOUND) return HASH_NOT_FOUND;
+    if (last_type == 0 || loc == HASH_NOT_FOUND) return GLOBAL_NOT_FOUND;
     if (last_type == 1){
         //initialized
-        return global_min + loc;
+        return (int32_t) GLOBAL_MIN + loc;
     }
     if (last_type == 2){
         //initialized
-        return global_min + initd + loc;
+        return (int32_t) GLOBAL_MIN + initd + loc;
     }
-    return HASH_NOT_FOUND;
+    return GLOBAL_NOT_FOUND;
 }
 
 void force_exit(){

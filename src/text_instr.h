@@ -139,6 +139,8 @@ uint32_t jumpr(char *param);
 uint32_t callr(char *param);
 uint32_t ret(char *param);
 
+uint32_t la(char *param);
+
 //IO
 uint32_t scan(char *format);
 uint32_t print(char *format);

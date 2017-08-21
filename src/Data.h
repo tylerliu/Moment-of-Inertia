@@ -31,10 +31,12 @@
 #define DOUBLE 14
 #define SPACE 15
 
+#define GLOBAL_NOT_FOUND -100000
+
 void start_data();
 void decode_data_line(char *line);
 void end_data();
-uint32_t data_get(char *name);
+int32_t data_get(char *name);
 void write_global();
 void force_exit();
 

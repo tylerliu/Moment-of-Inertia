@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "Hash.h"
-#include "FileIO.h"
+#include "fileIO.h"
 #include "Data.h"
 
 extern void *global;

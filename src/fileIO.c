@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "FileIO.h"
+#include "fileIO.h"
 #include "Text.h"
 #include "Data.h"
 #include "error.h"
@@ -61,8 +61,11 @@ int parse_data(){
     if (!startwith_incensitive(buf, ".data")) {
         fseek(in, 0, SEEK_SET);//reset to head
         do {
-            if (fgets(buf, 1024, in) == NULL)
-                perror_exit(1, "No data segment\n");
+            if (fgets(buf, 1024, in) == NULL){
+                start_data();
+                end_data();
+                return 1;
+            }
         } while (!startwith_incensitive(skip_space(buf), ".data"));
     }
     start_data();
