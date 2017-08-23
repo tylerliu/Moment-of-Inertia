@@ -142,9 +142,5 @@ uint32_t ret(char *param);
 uint32_t la(char *param);
 
 //IO
-uint32_t scan(char *format);
-uint32_t print(char *format);
-
-uint32_t reallocation(char *param);
-uint32_t Exit(char *param);
+uint32_t ecall(char *format);
 #endif /* Execution.h */
