@@ -87,6 +87,20 @@ uint32_t hash_get(const char *name){
     return HASH_NOT_FOUND; //not found
 }
 
+uint32_t hash_change(const char *name, uint32_t type, uint32_t val){
+    uint32_t loc = table[ELFHash(name)];
+    while (loc != 0){
+        if (!strcmp(elements[loc].name, name)){ //correct
+            last_type = elements[loc].type;
+            elements[loc].type = type;
+            elements[loc].value = val;
+            return 0;
+        }
+        loc = elements[loc].next;
+    }
+    return HASH_NOT_FOUND; //not found
+}
+
 void hash_delete(){
     free(elements);
 }

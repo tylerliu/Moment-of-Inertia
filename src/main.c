@@ -10,7 +10,7 @@
 #include <string.h>
 #include <errno.h>
 #include "fileIO.h"
-#include "Text.h"
+#include "text.h"
 #include "fileIO.h"
 #include "Hash.h"
 #include "Data.h"
@@ -19,10 +19,8 @@ void parse(){
     //parse
     parse_data();
     parse_text();
+    write_text();
     write_global();
-
-    fseek(out, 0, SEEK_SET);
-    fwrite(&bytes_written, 4, 1, out);
     //output
 }
 
@@ -41,7 +39,6 @@ int main(int argc, char *argv[]) {
         }
         return 1;
     }
-    write_int32(0);
 
     parse();
 

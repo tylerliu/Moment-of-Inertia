@@ -9,6 +9,6 @@ void error_exit(int error_num);
 
 void perror_exit(int error_num, const char *message);
 
-int perrorf_exit(int error_num, const char *format, ...);
+void perrorf_exit(int error_num, const char *format, ...);
 
 #endif /* error.h */

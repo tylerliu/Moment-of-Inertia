@@ -13,8 +13,6 @@
 FILE *in;
 FILE *out;
 
-uint32_t bytes_written;
-
 void write_int32(uint32_t int32);
 void write_segment(uint32_t len, void * segment);
 

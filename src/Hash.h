@@ -20,6 +20,8 @@ void hash_put(const char *name, uint32_t type, uint32_t value);
 
 uint32_t hash_get(const char *name);
 
+uint32_t hash_change(const char *name, uint32_t type, uint32_t val);
+
 void hash_delete();
 
 #endif /* Hash.h */

@@ -38,6 +38,6 @@ void decode_data_line(char *line);
 void end_data();
 int32_t data_get(char *name);
 void write_global();
-void force_exit();
+void data_force_exit();
 
 #endif /* Data.h */

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "fileIO.h"
-#include "Text.h"
+#include "text.h"
 #include "Data.h"
 #include "error.h"
 

@@ -8,6 +8,7 @@
 #include "Hash.h"
 #include "fileIO.h"
 #include "Data.h"
+#include "text.h"
 
 extern void *global;
 
@@ -16,7 +17,8 @@ void error_exit(int error_num){
     fclose(in);
     fclose(out);
     hash_delete();
-    force_exit();
+    data_force_exit();
+    text_force_exit();
     exit(error_num);
 }
 
@@ -26,7 +28,7 @@ void perror_exit(int error_num, const char *message){
 }
 
 
-int perrorf_exit(int error_num, const char *format, ...) {
+void perrorf_exit(int error_num, const char *format, ...) {
     va_list args;
     va_start(args, format);
 

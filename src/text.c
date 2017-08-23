@@ -5,10 +5,11 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "Text.h"
+#include "text.h"
 #include "fileIO.h"
-#include "text_instr.h"
+#include "text/text_instr.h"
 #include "string.h"
+#include "text/label.h"
 
 bool text_read; //whether text region is read
 
@@ -33,11 +34,30 @@ uint32_t (*opdec[length_op])(char *) = {addi, slti, sltui, andi, ori, xori, slli
                                         nop, li, mv, neg, not, seqz, snez, sltz, sgtz, beqz, bnez, blez, bgez, bltz, bgtz,
                                         bgt, ble, bgtu, bleu, pushw, popw, mkfm, pofm, jump, call, jumpr, callr, ret, la};
 
+uint32_t text_len = 256;
+uint32_t text_written;
+uint32_t *text_area;
 
 void write_instr(uint32_t instr){
     //printf("bytes: %u, %s, 0x%08X\n", bytes_written, opname[instr & 0XFF], instr);
-    write_int32(instr);
-    bytes_written++;
+    if (text_written == text_len){
+        text_len <<= 1;
+        text_area = realloc(text_area, text_len * sizeof(uint32_t));
+    }
+    text_area[text_written] = instr;
+    text_written++;
+}
+
+uint32_t get_instr(uint32_t loc){
+    return text_area[loc];
+}
+
+void set_instr(uint32_t loc, uint32_t instr){
+    text_area[loc] = instr;
+}
+
+uint32_t get_text_loc(){
+    return text_written;
 }
 
 void start_text(){
@@ -45,11 +65,21 @@ void start_text(){
         fprintf(stderr, "Multiple Text region. Place check the assembly. \n");
         exit(1);
     }
+    text_area = malloc(text_len * sizeof(uint32_t));
+    label_init();
     text_read = 1;
 }
 
 int decode_text_line(char *buff){
     //printf("READ: %s\n", buff);
+
+    if (strchr(buff, ':') != NULL){
+        *strchr(buff, ':') = 0;
+        new_label(buff);
+        buff = skip_space(buff + strlen(buff) + 1);
+    }
+
+    if (*buff == 0) return 1;
 
     for (int i = 0; i < length_op; i ++){
         if (startwith_incensitive(buff, opname[i])){
@@ -64,5 +94,17 @@ int decode_text_line(char *buff){
 
 void end_text(){
 
+}
+
+void write_text(){
+    write_int32(text_written);
+    write_segment(text_written * sizeof(uint32_t), text_area);
+    label_end();
+    free(text_area);
+}
+
+void text_force_exit(){
+    label_force_exit();
+    free(text_area);
 }
 

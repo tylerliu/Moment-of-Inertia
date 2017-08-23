@@ -9,10 +9,13 @@
 
 #include "text_instr.h"
 #include "Instr_set.h"
-#include "Data.h"
-#include "error.h"
+#include "../Data.h"
+#include "../error.h"
+#include "label.h"
+#include "../fileIO.h"
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #define NEW_INSTR(format) Instr_format_##format instr;\
                             *(uint32_t *)&instr = 0\
@@ -259,9 +262,21 @@ uint32_t jalr(char *param){
     return *(uint32_t *)&instr;
 }
 
+static inline void check_symbol(char *param){
+    char *place = strrchr(param, ',') + 1;
+    place = strrchr(param, ' ') + 1 > place ? strrchr(param, ' ') + 1 : place;
+    place = strrchr(param, '\t') + 1 > place ? strrchr(param, '\t') + 1 : place;
+    if (!isdigit(*place) && *place != '+' && *place != '-' ){
+        uint32_t loc = ref_label(place);
+        if (loc == LABEL_FILL_TEMP) loc = 1;
+        sprintf(place, "%d", loc);
+    }
+}
+
 //branch statements, type S, shift of offest.
 //BRANCH
 uint32_t beq(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BEQ;
     parse_S(&instr, param);
@@ -269,6 +284,7 @@ uint32_t beq(char *param){
 }
 
 uint32_t bne(char *param){
+    check_symbol(param);
     NEW_INSTR(S);   
     instr.opcode = BNE;
     parse_S(&instr, param);
@@ -276,6 +292,7 @@ uint32_t bne(char *param){
 }
 
 uint32_t blt(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     parse_S(&instr, param);
@@ -283,6 +300,7 @@ uint32_t blt(char *param){
 }
 
 uint32_t bltu(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLTU;
     parse_S(&instr, param);
@@ -290,6 +308,7 @@ uint32_t bltu(char *param){
 }
 
 uint32_t bge(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     parse_S(&instr, param);
@@ -297,6 +316,7 @@ uint32_t bge(char *param){
 }
 
 uint32_t bgeu(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGEU;
     parse_S(&instr, param);
@@ -755,6 +775,7 @@ uint32_t sgtz(char *param){
 }
 
 uint32_t beqz(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BEQ;
     uint8_t rs;
@@ -766,6 +787,7 @@ uint32_t beqz(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bnez(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BNE;
     uint8_t rs;
@@ -778,6 +800,7 @@ uint32_t bnez(char *param){
 }
 
 uint32_t blez(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
@@ -790,6 +813,7 @@ uint32_t blez(char *param){
 }
 
 uint32_t bgez(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
@@ -802,6 +826,7 @@ uint32_t bgez(char *param){
 }
 
 uint32_t bltz(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
@@ -814,6 +839,7 @@ uint32_t bltz(char *param){
 }
 
 uint32_t bgtz(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
@@ -826,6 +852,7 @@ uint32_t bgtz(char *param){
 }
 
 uint32_t bgt(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs1, rs2;
@@ -837,6 +864,7 @@ uint32_t bgt(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t ble(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs1, rs2;
@@ -848,6 +876,7 @@ uint32_t ble(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bgtu(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLTU;
     uint8_t rs1, rs2;
@@ -860,6 +889,7 @@ uint32_t bgtu(char *param){
 }
 
 uint32_t bleu(char *param){
+    check_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGEU;
     uint8_t rs1, rs2;
@@ -896,6 +926,11 @@ uint32_t pofm(char *param){
 }
 
 uint32_t jump(char *param){
+    if (!isdigit(param[0]) && param[0] != '-' && param[0] != '+'){
+        uint32_t loc = ref_label(param);
+        if (loc == LABEL_FILL_TEMP) loc = 0;
+        sprintf(param, "%d", loc);
+    }
     int32_t imm;
     sscanf(param, "%i", &imm);
     if (imm >> 18 == 0 || imm >> 18 == -1){//normal
@@ -932,6 +967,11 @@ uint32_t jumpr(char *param){
 }
 
 uint32_t call(char *param){
+    if (!isdigit(param[0]) && param[0] != '-' && param[0] != '+'){
+        uint32_t loc = ref_label(param);
+        if (loc == LABEL_FILL_TEMP) loc = 0;
+        sprintf(param, "%d", loc);
+    }
     int32_t imm;
     sscanf(param, "%i", &imm);
     if (imm >> 18 == 0 || imm >> 18 == -1){//normal

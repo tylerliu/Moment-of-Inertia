@@ -117,7 +117,7 @@ char *read_number(char *line){
     }
     if (cur_type == BYTE || cur_type == HALF || cur_type == WORD){
         int k = 0;
-        if (isnumber(line[0]))
+        if (isdigit(line[0]))
             sscanf(line, "%i", &k);
         else if (line[0] == '\'')
             if (line[1] != '\\')
@@ -130,7 +130,7 @@ char *read_number(char *line){
                     }
                 }
 
-                if (k == 0 && isnumber(line[2]) && isnumber(line[3]) && isnumber(line[4])) {
+                if (k == 0 && isdigit(line[2]) && isdigit(line[3]) && isdigit(line[4])) {
                     k = (char) (((line[1] - '0') << 6) + ((line[2] - '0') << 3) + (line[3] - '0'));
                 }
 
@@ -182,7 +182,7 @@ void decode_data_line(char *line){
         }
         if (cur_type == 0) perrorf_exit(1, "unexpected data type: %s\n", line);
 
-        hash_put(cur_name, (uint32_t) ((cur_type == SPACE) + 1), cur_type == SPACE ? uninitd : initd);
+        hash_put(cur_name, (uint32_t) ((cur_type == SPACE) + 2), cur_type == SPACE ? uninitd : initd);
         line = skip_space(line);
         step = 2;
     }
@@ -241,18 +241,18 @@ void write_global(){
 int32_t data_get(char *name){
     if (data_read != 2) perror_exit(1, "ERROR\n");
     uint32_t loc = hash_get(name);
-    if (last_type == 0 || loc == HASH_NOT_FOUND) return GLOBAL_NOT_FOUND;
-    if (last_type == 1){
+    if (last_type < 2 || loc == HASH_NOT_FOUND) return GLOBAL_NOT_FOUND;
+    if (last_type == 2){
         //initialized
         return (int32_t) GLOBAL_MIN + loc;
     }
-    if (last_type == 2){
+    if (last_type == 3){
         //initialized
         return (int32_t) GLOBAL_MIN + initd + loc;
     }
     return GLOBAL_NOT_FOUND;
 }
 
-void force_exit(){
+void data_force_exit(){
     free(global);
 }
