@@ -8,20 +8,72 @@
 //  execution function
 
 #include "text_instr.h"
-#include "Instr_set.h"
 #include "../Data.h"
 #include "../error.h"
 #include "label.h"
 #include "../fileIO.h"
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 #define NEW_INSTR(format) Instr_format_##format instr;\
                             *(uint32_t *)&instr = 0\
 
-//parse of IO functions
-uint32_t parseIO(char *param);
+//utility functions
+
+extern void write_instr(uint32_t instr);
+
+static inline void check_jump_symbol(char *param){
+    char *place = strrchr(param, ',') + 1;
+    place = strrchr(param, ' ') + 1 > place ? strrchr(param, ' ') + 1 : place;
+    place = strrchr(param, '\t') + 1 > place ? strrchr(param, '\t') + 1 : place;
+    if (!isdigit(*place) && *place != '+' && *place != '-' ){
+        uint32_t loc = ref_label(place);
+        if (loc == LABEL_FILL_TEMP) loc = 1;
+        sprintf(place, "%d", loc);
+    }
+}
+
+static inline void check_global_label(char *param, int is_load){
+    char *place = strrchr(param, ',') + 1;
+    place = strrchr(param, ' ') + 1 > place ? strrchr(param, ' ') + 1 : place;
+    place = strrchr(param, '\t') + 1 > place ? strrchr(param, '\t') + 1 : place;
+    if (!isdigit(*place) && *place != '+' && *place != '-' ){
+        //load global
+        //op ?, @global
+        char name[64];
+        uint8_t dest;
+        sscanf(param, "%hhu%*[ \n,]%s", &dest, name);
+        if (name[0] == '@'){
+            memmove(name, name + 1, strlen(name + 1));
+            name[strlen(name) - 1] = 0;
+        }
+        int32_t offset = data_get(name);
+        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
+        if (offset <= GLOBAL_MAX){
+            if (is_load) sprintf(param, "%hhu,4,%d", dest, offset);
+            else sprintf(param, "4,%hhu,%d", dest, offset);
+        } else {
+            char add_param[64];
+#ifdef STATIC_GLOBAL_POINTER
+            offset += STATIC_GLOBAL_POINTER;
+            if (is_load) sprintf(add_param, "%hhu,%d", dest, offset);
+            else sprintf(add_param, "5,%d", offset);
+            write_instr(lui(add_param));
+            if (is_load) sprintf(param, "%hhu,5,%d", dest, offset & 0x1FFF);
+            else sprintf(param, "5,%hhu,%d", dest, offset & 0x1FFF);
+#else
+            if (is_load) sprintf(add_param, "%hhu,%d", dest, offset);
+            else sprintf(add_param, "5,%d", offset);
+            write_instr(lui(add_param));
+            write_instr(add("5,5,4"));
+            if (is_load) sprintf(param, "%hhu,5,%d", dest, offset & 0x1FFF);
+            else sprintf(param, "5,%hhu,%d", dest, offset & 0x1FFF);
+#endif
+        }
+    }
+}
+
+
 
 // Integer Register-Immediate Instructions, type I
 
@@ -262,21 +314,10 @@ uint32_t jalr(char *param){
     return *(uint32_t *)&instr;
 }
 
-static inline void check_symbol(char *param){
-    char *place = strrchr(param, ',') + 1;
-    place = strrchr(param, ' ') + 1 > place ? strrchr(param, ' ') + 1 : place;
-    place = strrchr(param, '\t') + 1 > place ? strrchr(param, '\t') + 1 : place;
-    if (!isdigit(*place) && *place != '+' && *place != '-' ){
-        uint32_t loc = ref_label(place);
-        if (loc == LABEL_FILL_TEMP) loc = 1;
-        sprintf(place, "%d", loc);
-    }
-}
-
 //branch statements, type S, shift of offest.
 //BRANCH
 uint32_t beq(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BEQ;
     parse_S(&instr, param);
@@ -284,7 +325,7 @@ uint32_t beq(char *param){
 }
 
 uint32_t bne(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);   
     instr.opcode = BNE;
     parse_S(&instr, param);
@@ -292,7 +333,7 @@ uint32_t bne(char *param){
 }
 
 uint32_t blt(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     parse_S(&instr, param);
@@ -300,7 +341,7 @@ uint32_t blt(char *param){
 }
 
 uint32_t bltu(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLTU;
     parse_S(&instr, param);
@@ -308,7 +349,7 @@ uint32_t bltu(char *param){
 }
 
 uint32_t bge(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     parse_S(&instr, param);
@@ -316,7 +357,7 @@ uint32_t bge(char *param){
 }
 
 uint32_t bgeu(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGEU;
     parse_S(&instr, param);
@@ -325,17 +366,7 @@ uint32_t bgeu(char *param){
 
 //load from int_memory, type I, The effective byte = s1 + IMM.
 uint32_t lw(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //lw ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return lw(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = LW;
     parse_I(&instr, param);
@@ -343,17 +374,7 @@ uint32_t lw(char *param){
 }
 
 uint32_t lh(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //lh ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return lh(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = LH;
     parse_I(&instr, param);
@@ -361,17 +382,7 @@ uint32_t lh(char *param){
 }
 
 uint32_t lhu(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //lhu ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return lhu(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = LHU;
     parse_I(&instr, param);
@@ -379,17 +390,7 @@ uint32_t lhu(char *param){
 }
 
 uint32_t lb(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //lb ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return lb(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = LB;
     parse_I(&instr, param);
@@ -397,17 +398,7 @@ uint32_t lb(char *param){
 }
 
 uint32_t lbu(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //lbu ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return lbu(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = LBU;
     parse_I(&instr, param);
@@ -416,17 +407,7 @@ uint32_t lbu(char *param){
 
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t sw(char *param){
-    if (strchr(param, '@') != NULL){
-        //store global
-        //sw ?, @global
-        char name[64];
-        uint8_t source;
-        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "4,%hhu,%d", source, offset);
-        return sw(name);
-    }
+    check_global_label(param, 0);
     NEW_INSTR(S);
     instr.opcode = SW;
     parse_S(&instr, param);
@@ -434,17 +415,7 @@ uint32_t sw(char *param){
 }
 
 uint32_t sh(char *param){
-    if (strchr(param, '@') != NULL){
-        //store global
-        //sh ?, @global
-        char name[64];
-        uint8_t source;
-        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "4,%hhu,%d", source, offset);
-        return sh(name);
-    }
+    check_global_label(param, 0);
     NEW_INSTR(S);
     instr.opcode = SH;
     parse_S(&instr, param);
@@ -452,17 +423,7 @@ uint32_t sh(char *param){
 }
 
 uint32_t sb(char *param){
-    if (strchr(param, '@') != NULL){
-        //store global
-        //sb ?, @global
-        char name[64];
-        uint8_t source;
-        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "4,%hhu,%d", source, offset);
-        return sb(name);
-    }
+    check_global_label(param, 0);
     NEW_INSTR(S);
     instr.opcode = SB;
     parse_S(&instr, param);
@@ -473,17 +434,7 @@ uint32_t sb(char *param){
 
 //load from memory, type I, The effective byte = s1 + IMM.
 uint32_t flw(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //flw ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return flw(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = FLW;
     parse_I(&instr, param);
@@ -491,17 +442,7 @@ uint32_t flw(char *param){
 }
 
 uint32_t fld(char *param){
-    if (strchr(param, '@') != NULL){
-        //load global
-        //fld ?, @global
-        char name[64];
-        uint8_t dest;
-        sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "%hhu,4,%d", dest, offset);
-        return fld(name);
-    }
+    check_global_label(param, 1);
     NEW_INSTR(I);
     instr.opcode = FLD;
     parse_I(&instr, param);
@@ -510,17 +451,7 @@ uint32_t fld(char *param){
 
 //store to int_memory, type S, The effective byte = s1 + IMM.
 uint32_t fsw(char *param){
-    if (strchr(param, '@') != NULL){
-        //store global
-        //fsw ?, @global
-        char name[64];
-        uint8_t source;
-        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "4,%hhu,%d", source, offset);
-        return fsw(name);
-    }
+    check_global_label(param, 0);
     NEW_INSTR(S);
     instr.opcode = FSW;
     parse_S(&instr, param);
@@ -528,17 +459,7 @@ uint32_t fsw(char *param){
 }
 
 uint32_t fsd(char *param){
-    if (strchr(param, '@') != NULL){
-        //store global
-        //fsd ?, @global
-        char name[64];
-        uint8_t source;
-        sscanf(param, "%hhu%*[ \n,]@%s", &source, name);
-        int32_t offset = data_get(name);
-        if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-        sprintf(name, "4,%hhu,%d", source, offset);
-        return fsd(name);
-    }
+    check_global_label(param, 0);
     NEW_INSTR(S);
     instr.opcode = FSD;
     parse_S(&instr, param);
@@ -660,7 +581,6 @@ uint32_t Fabs(char *param){
 }
 
 //Pseudo-instructions
-extern void write_instr(uint32_t instr);
 
 uint32_t nop(char *param){
     NEW_INSTR(I);
@@ -775,7 +695,7 @@ uint32_t sgtz(char *param){
 }
 
 uint32_t beqz(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BEQ;
     uint8_t rs;
@@ -787,7 +707,7 @@ uint32_t beqz(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bnez(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BNE;
     uint8_t rs;
@@ -800,7 +720,7 @@ uint32_t bnez(char *param){
 }
 
 uint32_t blez(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
@@ -813,7 +733,7 @@ uint32_t blez(char *param){
 }
 
 uint32_t bgez(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs;
@@ -826,7 +746,7 @@ uint32_t bgez(char *param){
 }
 
 uint32_t bltz(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
@@ -839,7 +759,7 @@ uint32_t bltz(char *param){
 }
 
 uint32_t bgtz(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs;
@@ -852,7 +772,7 @@ uint32_t bgtz(char *param){
 }
 
 uint32_t bgt(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLT;
     uint8_t rs1, rs2;
@@ -864,7 +784,7 @@ uint32_t bgt(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t ble(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGE;
     uint8_t rs1, rs2;
@@ -876,7 +796,7 @@ uint32_t ble(char *param){
     return *(uint32_t *)&instr;
 }
 uint32_t bgtu(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BLTU;
     uint8_t rs1, rs2;
@@ -889,7 +809,7 @@ uint32_t bgtu(char *param){
 }
 
 uint32_t bleu(char *param){
-    check_symbol(param);
+    check_jump_symbol(param);
     NEW_INSTR(S);
     instr.opcode = BGEU;
     uint8_t rs1, rs2;
@@ -942,14 +862,14 @@ uint32_t jump(char *param){
         return *(uint32_t *)&instr;
     } else {
         char buf[32];
-        sprintf(buf, "4,%i", imm);
+        sprintf(buf, "5,%i", imm);
         write_instr(auipc(buf));
 
         Instr_format_I instr;
         *(uint32_t *) &instr = 0;
         instr.opcode = JALR;
         instr.rd = 0;
-        instr.rs1 = 4;
+        instr.rs1 = 5;
         fill_imm_I(&instr, imm & 0x1FFF);
         return *(uint32_t *)&instr;
     }
@@ -983,14 +903,14 @@ uint32_t call(char *param){
         return *(uint32_t *)&instr;
     } else {
         char buf[32];
-        sprintf(buf, "4,%i", imm);
+        sprintf(buf, "5,%i", imm);
         write_instr(auipc(buf));
 
         Instr_format_I instr;
         *(uint32_t *) &instr = 0;
         instr.opcode = JALR;
         instr.rd = 1;
-        instr.rs1 = 4;
+        instr.rs1 = 5;
         fill_imm_I(&instr, imm & 0x1FFF);
         return *(uint32_t *)&instr;
     }
@@ -1019,14 +939,8 @@ uint32_t ret(char *param){
 
 uint32_t la(char *param){
     //la ?, @global
-    if (strchr(param, '@') == NULL) perrorf_exit(0, "Format error: la %s\n", param);
-    char name[64];
-    uint8_t dest;
-    sscanf(param, "%hhu%*[ \n,]@%s", &dest, name);
-    int32_t offset = data_get(name);
-    if (offset == GLOBAL_NOT_FOUND) perrorf_exit(1, "undeclared identifier: %s\n", name);
-    sprintf(name, "%hhu,4,%d", dest, offset);
-    return addi(name);
+    check_global_label(param, 1); // same output as load
+    return addi(param);
 }
 
 //other

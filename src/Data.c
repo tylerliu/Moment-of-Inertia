@@ -6,14 +6,10 @@
 #include "fileIO.h"
 #include "Hash.h"
 #include "error.h"
-#include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 
-#define GLOBAL_MIN -8192
-#define GLOBAL_MAX 8191
 
 const char type_name[8][10] = {".asciiz", ".ascii", ".byte", ".half", ".word", ".float", ".double", ".space"};
 const char esc[23] = {"a\ab\bf\fn\nr\rt\tv\v\\\\''\"\"??"};
@@ -49,9 +45,14 @@ void add_to_global(uint32_t len, const void *seg){
     initd += len;
 }
 
-void align_global(){
+void align_global(int type){
     uint32_t temp = 0;
-    add_to_global(((initd >> 2) << 2) + 4 - initd, &temp);
+    if (type == WORD || type == FLOAT)
+        add_to_global(((initd - 1) >> 2 << 2) + 4 - initd, &temp);
+    if (type == HALF)
+        add_to_global(initd & 1, &temp);
+    if (type == DOUBLE)
+        add_to_global(((initd - 1) >> 3 << 3) + 4 - initd, &temp);
 }
 
 char *read_string(char *line){
@@ -182,6 +183,8 @@ void decode_data_line(char *line){
         }
         if (cur_type == 0) perrorf_exit(1, "unexpected data type: %s\n", line);
 
+        align_global(cur_type);
+
         hash_put(cur_name, (uint32_t) ((cur_type == SPACE) + 2), cur_type == SPACE ? uninitd : initd);
         line = skip_space(line);
         step = 2;
@@ -242,11 +245,11 @@ int32_t data_get(char *name){
     if (data_read != 2) perror_exit(1, "ERROR\n");
     uint32_t loc = hash_get(name);
     if (last_type < 2 || loc == HASH_NOT_FOUND) return GLOBAL_NOT_FOUND;
-    if (last_type == 2){
+    if (last_type == HASH_TYPE_DATA){
         //initialized
         return (int32_t) GLOBAL_MIN + loc;
     }
-    if (last_type == 3){
+    if (last_type == HASH_TYPE_SPACE){
         //initialized
         return (int32_t) GLOBAL_MIN + initd + loc;
     }

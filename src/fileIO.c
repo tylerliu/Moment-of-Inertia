@@ -10,11 +10,6 @@
 #include "Data.h"
 #include "error.h"
 
-#define TEXT 1
-#define DATA 2
-
-int seg_mode;
-
 char buf[1024];
 
 void write_int32(uint32_t int32){
@@ -38,7 +33,9 @@ char *readline(){
     //delete front spaces
     for (int i = 0;buf[i]; i++){
         if (buf[i] != ' ' && buf[i] != '\t'){
+            if (i == 0) break;
             memmove(buf, buf + i, strlen(buf + i));
+            buf[strlen(buf) - i] = 0;
             break;
         }
     }
@@ -103,8 +100,8 @@ int startwith_incensitive(char *source, const char *pattern){
 }
 
 char *skip_space(char *str){
-    for (;*str; str++){
-        if (*str != ' ' && *str != '\t') return str;
+    while (*str == ' ' || *str == '\t'){
+        str++;
     }
     return str;
 }

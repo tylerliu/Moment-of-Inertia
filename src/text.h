@@ -10,7 +10,7 @@
 
 void write_instr(uint32_t instr);
 void start_text();
-int decode_text_line(char *buff);
+void decode_text_line(char *buff);
 void end_text();
 void write_text();
 void text_force_exit();

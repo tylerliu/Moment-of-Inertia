@@ -8,8 +8,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define READ_SUCCESS 1
-
 FILE *in;
 FILE *out;
 

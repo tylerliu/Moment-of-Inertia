@@ -22,6 +22,9 @@
  //identifier must not start with digit, must end with :
 
 
+#define GLOBAL_MIN -8192
+#define GLOBAL_MAX 8191
+
 #define ASCIIZ 8
 #define ASCII 9
 #define BYTE 10

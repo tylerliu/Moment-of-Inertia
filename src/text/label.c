@@ -5,13 +5,11 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "../Hash.h"
 #include "../text.h"
 #include "../error.h"
 #include "label.h"
 #include "text_instr.h"
-#include "Instr_set.h"
 
 typedef struct{
     uint32_t loc;
@@ -28,12 +26,11 @@ void label_init(){
 
 void new_label(char *name){
     uint32_t loc = hash_get(name);
-    char buf[32];
     if (loc == HASH_NOT_FOUND){
         hash_put(name, 0, get_text_loc());
         return;
     }
-    if (last_type != 1) {
+    if (last_type != HASH_TYPE_REF) {
         perrorf_exit(1, "duplicated symbol: %s\n", name);
     }
     //last type == 1
@@ -46,12 +43,12 @@ void new_label(char *name){
         set_instr(ref_area[loc].loc, instr);
         loc = ref_area[loc].next;
     }
-    hash_change(name, 0, get_text_loc());
+    hash_change(name, HASH_TYPE_TEXT, get_text_loc());
 }
 
 uint32_t ref_label(char *name){
     uint32_t loc = hash_get(name);
-    if (loc != HASH_NOT_FOUND && last_type == 0) {
+    if (loc != HASH_NOT_FOUND && last_type == HASH_TYPE_TEXT) {
         //printf("%d\n", loc - (get_text_loc() + 1));
         return loc - (get_text_loc() + 1);
     }

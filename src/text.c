@@ -70,7 +70,7 @@ void start_text(){
     text_read = 1;
 }
 
-int decode_text_line(char *buff){
+void decode_text_line(char *buff){
     //printf("READ: %s\n", buff);
 
     if (strchr(buff, ':') != NULL){
@@ -79,17 +79,17 @@ int decode_text_line(char *buff){
         buff = skip_space(buff + strlen(buff) + 1);
     }
 
-    if (*buff == 0) return 1;
+    if (*buff == 0) return;
 
     for (int i = 0; i < length_op; i ++){
         if (startwith_incensitive(buff, opname[i])){
             write_instr((*opdec[i])(skip_space(buff + strlen(opname[i]))));
-            return 1;
+            return;
         }
 
     }
     fprintf(stderr, "Unrecognizable text: %s\n", buff);
-    return 1;
+    return;
 }
 
 void end_text(){

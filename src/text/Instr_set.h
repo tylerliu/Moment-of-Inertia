@@ -19,6 +19,9 @@
  * reg[5] is temporary register
  */
 
+//if below is defined the assembler calculate global with fixed value
+#define STATIC_GLOBAL_POINTER 8196
+
 //opcodes
 #define ADDI    0X00
 #define SLTI    0X01

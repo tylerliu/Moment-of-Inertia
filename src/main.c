@@ -6,12 +6,10 @@
 //Uses little Endian for instr.
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include "fileIO.h"
 #include "text.h"
-#include "fileIO.h"
 #include "Hash.h"
 #include "Data.h"
 

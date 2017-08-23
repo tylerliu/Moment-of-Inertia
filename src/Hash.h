@@ -9,8 +9,9 @@
 
 #define HASH_NOT_FOUND 0xFFFFFFFF
 #define HASH_TYPE_TEXT 0
-#define HASH_TYPE_DATA 1
-#define HASH_TYPE_SPACE 2
+#define HASH_TYPE_REF 1
+#define HASH_TYPE_DATA 2
+#define HASH_TYPE_SPACE 3
 
 uint32_t last_type; //type of last get element
 
